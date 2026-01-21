@@ -315,8 +315,6 @@ i18n
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],
       lookupLocalStorage: 'i18nextLng',
-      // Agar localStorage da til bo'lmasa, o'zbekcha qo'yadi
-      checkWhitelist: true,
     },
   });
 

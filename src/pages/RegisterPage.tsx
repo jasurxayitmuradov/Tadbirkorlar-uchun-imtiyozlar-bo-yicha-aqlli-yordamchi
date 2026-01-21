@@ -42,14 +42,12 @@ export const RegisterPage: React.FC = () => {
 
   // SMS kod yuborish (test uchun)
   const sendSMSCode = (phone: string) => {
-    // Test uchun: 123456 yoki random kod
+    // Test uchun: 123456
     const testCode = '123456';
-    const randomCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const code = testCode; // Test uchun doim 123456
     
-    console.log('SMS kod yuborildi:', code, 'Telefon:', phone);
-    setSentCode(code);
-    return code;
+    console.log('SMS kod yuborildi:', testCode, 'Telefon:', phone);
+    setSentCode(testCode);
+    return testCode;
   };
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -79,7 +77,7 @@ export const RegisterPage: React.FC = () => {
     }
 
     // SMS kod yuborish
-    const code = sendSMSCode(formattedPhone);
+    sendSMSCode(formattedPhone);
     setStep('sms');
   };
 
@@ -127,7 +125,7 @@ export const RegisterPage: React.FC = () => {
   };
 
   const handleResendCode = () => {
-    const code = sendSMSCode(formatPhone(formData.phone));
+    sendSMSCode(formatPhone(formData.phone));
     setSmsCode('');
     setErrors({});
   };
