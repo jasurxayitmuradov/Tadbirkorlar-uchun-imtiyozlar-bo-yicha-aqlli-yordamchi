@@ -8,18 +8,28 @@ import { Search, Calendar, ExternalLink, ShieldCheck } from 'lucide-react';
 
 export const NewsPage: React.FC = () => {
   const { t } = useTranslation();
+  const [allNews, setAllNews] = useState<NewsItem[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [query, setQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
 
   useEffect(() => {
-    const allNews = getNews();
+    let isMounted = true;
+    getNews().then((items) => {
+      if (isMounted) setAllNews(items);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     setNews(filterNews(allNews, query, selectedTag));
-  }, [query, selectedTag]);
+  }, [allNews, query, selectedTag]);
 
   // Extract unique tags
-  const allTags = Array.from(new Set(getNews().flatMap(n => n.tags)));
+  const allTags = Array.from(new Set(allNews.flatMap(n => n.tags)));
 
   return (
     <div className="space-y-6 pb-20 animate-fade-in">

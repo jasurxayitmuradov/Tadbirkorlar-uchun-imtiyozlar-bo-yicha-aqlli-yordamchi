@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { UserProfile } from '../types';
+import { NewsItem, UserProfile } from '../types';
 import { Link } from 'react-router-dom';
 import { Card } from '../components/Card';
 import { getNews } from '../services/newsService';
@@ -10,8 +10,18 @@ import { MessageSquareText, Zap, ChevronRight, GraduationCap } from 'lucide-reac
 export const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const profile: UserProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
-  const recentNews = getNews().slice(0, 3);
+  const [recentNews, setRecentNews] = useState<NewsItem[]>([]);
   const recommendedCourses = getCourses().slice(0, 3); // Mock recommendation
+
+  useEffect(() => {
+    let isMounted = true;
+    getNews().then((items) => {
+      if (isMounted) setRecentNews(items.slice(0, 3));
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="space-y-8 animate-fade-in">
