@@ -68,13 +68,34 @@ const resources = {
       // Dashboard
       'dashboard.welcome': 'Assalomu alaykum',
       'dashboard.region': 'Hudud',
+      'dashboard.happening': 'Bugun sizning hududingizda',
+      'dashboard.system.operational': 'Tizim ishlamoqda',
       'dashboard.active.benefits': 'Faol imtiyozlar',
+      'dashboard.available.region': 'Sizning hududingizda mavjud',
       'dashboard.new.courses': 'Yangi kurslar',
+      'dashboard.added.month': 'Ushbu oy qo\'shilgan',
       'dashboard.ask.ai': 'AI Yordamchidan so\'rang',
+      'dashboard.legal.help': 'Yuridik yordamni soniyalar ichida oling',
       'dashboard.latest.news': 'So\'nggi rasmiy yangiliklar',
       'dashboard.recommended': 'Sizga tavsiya etiladi',
       'dashboard.view.all': 'Barchasini ko\'rish',
       'dashboard.browse': 'Ko\'rib chiqish',
+      
+      // News
+      'news.title': 'Rasmiy yangiliklar',
+      'news.subtitle': 'Davlat manbalaridan yig\'ilgan',
+      'news.search.placeholder': 'Yangiliklar va qarorlarni qidirish...',
+      'news.all.updates': 'Barcha yangiliklar',
+      'news.no.results': 'Qidiruv bo\'yicha yangiliklar topilmadi',
+      'news.related.documents': 'Tegishli huquqiy hujjatlar',
+      'news.summary': 'Xulosa',
+      'news.tags': 'Teglar',
+      'news.read.source': 'Asl manbani o\'qish',
+      'news.redirect': 'Siz {source} ga yo\'naltirilasiz',
+      
+      // Sidebar
+      'sidebar.trusted.sources': 'Ishonchli manbalar',
+      'sidebar.official': '100% Rasmiy',
       
       // Settings
       'settings.title': 'Sozlamalar',
@@ -145,13 +166,34 @@ const resources = {
       // Dashboard
       'dashboard.welcome': 'Здравствуйте',
       'dashboard.region': 'Регион',
+      'dashboard.happening': 'Сегодня в вашем регионе',
+      'dashboard.system.operational': 'Система работает',
       'dashboard.active.benefits': 'Активные льготы',
+      'dashboard.available.region': 'Доступно в вашем регионе',
       'dashboard.new.courses': 'Новые курсы',
+      'dashboard.added.month': 'Добавлено в этом месяце',
       'dashboard.ask.ai': 'Спросите AI помощника',
+      'dashboard.legal.help': 'Получите юридическую помощь за секунды',
       'dashboard.latest.news': 'Последние официальные новости',
       'dashboard.recommended': 'Рекомендуется для вас',
       'dashboard.view.all': 'Посмотреть все',
       'dashboard.browse': 'Просмотр',
+      
+      // News
+      'news.title': 'Официальные обновления',
+      'news.subtitle': 'Собрано из проверенных государственных источников',
+      'news.search.placeholder': 'Поиск новостей и указов...',
+      'news.all.updates': 'Все обновления',
+      'news.no.results': 'Новости по вашему запросу не найдены',
+      'news.related.documents': 'Связанные правовые документы',
+      'news.summary': 'Краткое содержание',
+      'news.tags': 'Теги',
+      'news.read.source': 'Читать оригинальный источник',
+      'news.redirect': 'Вы будете перенаправлены на {source}',
+      
+      // Sidebar
+      'sidebar.trusted.sources': 'Проверенные источники',
+      'sidebar.official': '100% Официально',
       
       // Settings
       'settings.title': 'Настройки',
@@ -222,13 +264,34 @@ const resources = {
       // Dashboard
       'dashboard.welcome': 'Hello',
       'dashboard.region': 'Region',
+      'dashboard.happening': 'Here\'s what\'s happening in',
+      'dashboard.system.operational': 'System Operational',
       'dashboard.active.benefits': 'Active benefits',
+      'dashboard.available.region': 'Available in your region',
       'dashboard.new.courses': 'New courses',
+      'dashboard.added.month': 'Added this month',
       'dashboard.ask.ai': 'Ask AI Assistant',
+      'dashboard.legal.help': 'Get legal help in seconds',
       'dashboard.latest.news': 'Latest official updates',
       'dashboard.recommended': 'Recommended for you',
       'dashboard.view.all': 'View all',
       'dashboard.browse': 'Browse',
+      
+      // News
+      'news.title': 'Official Updates',
+      'news.subtitle': 'Aggregated from whitelisted government sources',
+      'news.search.placeholder': 'Search news & decrees...',
+      'news.all.updates': 'All Updates',
+      'news.no.results': 'No updates found matching your criteria',
+      'news.related.documents': 'Related Legal Documents',
+      'news.summary': 'Summary',
+      'news.tags': 'Tags',
+      'news.read.source': 'Read Original Source',
+      'news.redirect': 'You will be redirected to {source}',
+      
+      // Sidebar
+      'sidebar.trusted.sources': 'Trusted Sources',
+      'sidebar.official': '100% Official',
       
       // Settings
       'settings.title': 'Settings',
@@ -258,7 +321,7 @@ i18n
   });
 
 // Agar localStorage da til bo'lmasa, o'zbekcha qo'yish
-if (!localStorage.getItem('i18nextLng')) {
+if (typeof window !== 'undefined' && !localStorage.getItem('i18nextLng')) {
   i18n.changeLanguage('uz');
   localStorage.setItem('i18nextLng', 'uz');
 }

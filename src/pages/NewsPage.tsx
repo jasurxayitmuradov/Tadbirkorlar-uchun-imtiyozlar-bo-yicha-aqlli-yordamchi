@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getNews, filterNews } from '../services/newsService';
 import { NewsItem } from '../types';
 import { Card } from '../components/Card';
@@ -6,6 +7,7 @@ import { Modal } from '../components/Modal';
 import { Search, Calendar, ExternalLink, ShieldCheck } from 'lucide-react';
 
 export const NewsPage: React.FC = () => {
+  const { t } = useTranslation();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [query, setQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -22,10 +24,10 @@ export const NewsPage: React.FC = () => {
   return (
     <div className="space-y-6 pb-20 animate-fade-in">
       <header>
-        <h1 className="text-3xl font-bold text-white mb-2">Official Updates</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">{t('news.title')}</h1>
         <p className="text-slate-400 flex items-center gap-2">
           <ShieldCheck size={16} className="text-green-400" />
-          Aggregated from whitelisted government sources
+          {t('news.subtitle')}
         </p>
       </header>
 
@@ -35,7 +37,7 @@ export const NewsPage: React.FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
           <input
             type="text"
-            placeholder="Search news & decrees..."
+            placeholder={t('news.search.placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-slate-950/50 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-white focus:border-ion-500 outline-none"
@@ -50,7 +52,7 @@ export const NewsPage: React.FC = () => {
                 : 'bg-slate-900/50 border-white/10 text-slate-400 hover:text-white'
             }`}
           >
-            All Updates
+            {t('news.all.updates')}
           </button>
           {allTags.map(tag => (
             <button
@@ -107,7 +109,7 @@ export const NewsPage: React.FC = () => {
         ))}
         {news.length === 0 && (
           <div className="col-span-full py-10 text-center text-slate-500">
-            No updates found matching your criteria.
+            {t('news.no.results')}
           </div>
         )}
       </div>
@@ -130,7 +132,7 @@ export const NewsPage: React.FC = () => {
 
             {selectedNews.docRefs.length > 0 && (
               <div className="p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-xl">
-                <p className="text-xs text-yellow-500 font-bold uppercase mb-2">Related Legal Documents</p>
+                <p className="text-xs text-yellow-500 font-bold uppercase mb-2">{t('news.related.documents')}</p>
                 <div className="flex gap-2">
                   {selectedNews.docRefs.map(ref => (
                     <span key={ref} className="font-mono text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded">
@@ -142,12 +144,12 @@ export const NewsPage: React.FC = () => {
             )}
 
             <div>
-              <h4 className="font-medium text-white mb-2">Summary</h4>
+              <h4 className="font-medium text-white mb-2">{t('news.summary')}</h4>
               <p className="leading-relaxed">{selectedNews.summary}</p>
             </div>
 
             <div className="flex flex-col gap-2">
-               <h4 className="font-medium text-white mb-2">Tags</h4>
+               <h4 className="font-medium text-white mb-2">{t('news.tags')}</h4>
                <div className="flex flex-wrap gap-2">
                  {selectedNews.tags.map(tag => (
                    <span key={tag} className="bg-slate-800 text-slate-300 px-3 py-1 rounded-full text-sm">#{tag}</span>
@@ -162,10 +164,10 @@ export const NewsPage: React.FC = () => {
                 rel="noopener noreferrer"
                 className="w-full bg-ion-600 hover:bg-ion-500 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
               >
-                Read Original Source <ExternalLink size={18} />
+                {t('news.read.source')} <ExternalLink size={18} />
               </a>
               <p className="text-center text-xs text-slate-500 mt-2">
-                You will be redirected to {selectedNews.sourceName}
+                {t('news.redirect', { source: selectedNews?.sourceName || '' })}
               </p>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { UserProfile } from '../types';
 import { Link } from 'react-router-dom';
 import { Card } from '../components/Card';
@@ -7,6 +8,7 @@ import { getCourses } from '../services/coursesService';
 import { MessageSquareText, Zap, ChevronRight, GraduationCap } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const profile: UserProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
   const recentNews = getNews().slice(0, 3);
   const recommendedCourses = getCourses().slice(0, 3); // Mock recommendation
@@ -16,11 +18,11 @@ export const DashboardPage: React.FC = () => {
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row justify-between items-end gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-1">Assalomu alaykum, {profile.name}!</h1>
-          <p className="text-slate-400">Here's what's happening in <span className="text-ion-400">{profile.region}</span> today.</p>
+          <h1 className="text-3xl font-bold text-white mb-1">{t('dashboard.welcome')}, {profile.name || profile.firstName || 'Foydalanuvchi'}!</h1>
+          <p className="text-slate-400">{t('dashboard.happening')} <span className="text-ion-400">{profile.region}</span> {t('dashboard.region')}.</p>
         </div>
         <div className="flex gap-2">
-           <span className="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs border border-green-500/20">System Operational</span>
+           <span className="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs border border-green-500/20">{t('dashboard.system.operational')}</span>
         </div>
       </div>
 
@@ -30,14 +32,14 @@ export const DashboardPage: React.FC = () => {
             <Card className="h-full bg-gradient-to-br from-slate-900 to-slate-900 border-l-4 border-l-ion-500">
             <div className="flex justify-between items-start">
                 <div>
-                <p className="text-slate-400 text-sm font-medium mb-1">Active Benefits</p>
+                <p className="text-slate-400 text-sm font-medium mb-1">{t('dashboard.active.benefits')}</p>
                 <h3 className="text-3xl font-bold text-white">142</h3>
                 </div>
                 <div className="p-2 bg-ion-500/10 rounded-lg text-ion-400">
                 <Zap size={24} />
                 </div>
             </div>
-            <div className="mt-4 text-xs text-slate-500">Available in your region</div>
+            <div className="mt-4 text-xs text-slate-500">{t('dashboard.available.region')}</div>
             </Card>
         </Link>
 
@@ -45,14 +47,14 @@ export const DashboardPage: React.FC = () => {
             <Card className="h-full bg-gradient-to-br from-slate-900 to-slate-900 border-l-4 border-l-purple-500">
             <div className="flex justify-between items-start">
                 <div>
-                <p className="text-slate-400 text-sm font-medium mb-1">New Courses</p>
+                <p className="text-slate-400 text-sm font-medium mb-1">{t('dashboard.new.courses')}</p>
                 <h3 className="text-3xl font-bold text-white">12</h3>
                 </div>
                 <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
                 <GraduationCap size={24} />
                 </div>
             </div>
-            <div className="mt-4 text-xs text-slate-500">Added this month</div>
+            <div className="mt-4 text-xs text-slate-500">{t('dashboard.added.month')}</div>
             </Card>
         </Link>
 
@@ -62,8 +64,8 @@ export const DashboardPage: React.FC = () => {
                 <div className="p-3 bg-ion-500 rounded-full text-white mb-3 shadow-[0_0_15px_#0ea5e9] group-hover:scale-110 transition-transform">
                 <MessageSquareText size={24} />
                 </div>
-                <h3 className="font-bold text-white">Ask AI Assistant</h3>
-                <p className="text-xs text-slate-400 mt-1">Get legal help in seconds</p>
+                <h3 className="font-bold text-white">{t('dashboard.ask.ai')}</h3>
+                <p className="text-xs text-slate-400 mt-1">{t('dashboard.legal.help')}</p>
             </div>
             </Card>
         </Link>
@@ -74,8 +76,8 @@ export const DashboardPage: React.FC = () => {
         {/* Latest News */}
         <div className="lg:col-span-2 space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-white">Latest Official Updates</h2>
-            <Link to="/app/news" className="text-sm text-ion-400 hover:text-ion-300 flex items-center">View all <ChevronRight size={16}/></Link>
+            <h2 className="text-xl font-bold text-white">{t('dashboard.latest.news')}</h2>
+            <Link to="/app/news" className="text-sm text-ion-400 hover:text-ion-300 flex items-center">{t('dashboard.view.all')} <ChevronRight size={16}/></Link>
           </div>
           <div className="space-y-4">
             {recentNews.map(news => (
@@ -96,8 +98,8 @@ export const DashboardPage: React.FC = () => {
         {/* Recommended Courses */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-white">Recommended for you</h2>
-            <Link to="/app/courses" className="text-sm text-purple-400 hover:text-purple-300 flex items-center">Browse <ChevronRight size={16}/></Link>
+            <h2 className="text-xl font-bold text-white">{t('dashboard.recommended')}</h2>
+            <Link to="/app/courses" className="text-sm text-purple-400 hover:text-purple-300 flex items-center">{t('dashboard.browse')} <ChevronRight size={16}/></Link>
           </div>
           <div className="space-y-4">
             {recommendedCourses.map(course => (
