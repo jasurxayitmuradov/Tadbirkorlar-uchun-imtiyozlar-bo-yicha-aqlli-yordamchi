@@ -1,24 +1,7 @@
 export interface UserProfile {
   name: string;
   region: string;
-  firstName?: string;
-  lastName?: string;
-  username?: string;
-  phone?: string;
 }
-
-export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  username: string;
-  password: string;
-  phone: string;
-  region: string;
-  createdAt: number;
-}
-
-export type Language = 'uz' | 'ru' | 'en';
 
 export interface Message {
   id: string;

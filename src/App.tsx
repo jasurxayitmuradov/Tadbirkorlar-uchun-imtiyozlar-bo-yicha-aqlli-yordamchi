@@ -1,8 +1,6 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ChatPage } from './pages/ChatPage';
 import { CoursesPage } from './pages/CoursesPage';
@@ -13,7 +11,6 @@ import { Sidebar } from './components/Sidebar';
 import { Menu, Monitor, Sun, Moon } from 'lucide-react';
 import { applyTheme, getStoredTheme, initTheme, setStoredTheme } from './services/theme';
 import type { Theme } from './types';
-import './i18n/config';
 
 // Shell Component for Authenticated Routes
 const AppShell = () => {
@@ -122,17 +119,15 @@ const SettingsPage = () => (
 );
 
 const SettingsPanel: React.FC = () => {
-  const { t } = useTranslation();
-  
   return (
     <div className="glass-panel p-8 rounded-xl max-w-lg mx-auto mt-10 text-center animate-fade-in">
-      <h2 className="text-xl font-bold text-white mb-6">{t('settings.title')}</h2>
+      <h2 className="text-xl font-bold text-white mb-6">Settings</h2>
 
       <button 
         onClick={() => { localStorage.clear(); window.location.reload(); }}
         className="px-6 py-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg hover:bg-red-500/20"
       >
-        {t('settings.reset')}
+        Reset App Data (Log out)
       </button>
       <p className="mt-4 text-xs text-slate-500">Version 1.0.0 • React 19</p>
     </div>
@@ -146,7 +141,6 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
         <Route path="/app" element={<AppShell />}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="chat" element={<ChatPage />} />
