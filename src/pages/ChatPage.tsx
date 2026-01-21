@@ -3,6 +3,7 @@ import { Send, Loader2, Sparkles, User, Bot } from 'lucide-react';
 import { Message, UserProfile } from '../types';
 import { sendMessageToAI } from '../services/aiService';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export const ChatPage: React.FC = () => {
   const profile: UserProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
@@ -81,7 +82,23 @@ export const ChatPage: React.FC = () => {
             `}>
                {msg.sender === 'ai' ? (
                  <div className="prose prose-invert prose-sm max-w-none markdown-body">
-                   <ReactMarkdown>{msg.text}</ReactMarkdown>
+                   <ReactMarkdown
+                     remarkPlugins={[remarkGfm]}
+                     components={{
+                       a: ({ href, children }) => (
+                         <a
+                           href={href}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           className="text-ion-400 underline underline-offset-2 hover:text-ion-300"
+                         >
+                           {children}
+                         </a>
+                       ),
+                     }}
+                   >
+                     {msg.text}
+                   </ReactMarkdown>
                  </div>
                ) : (
                  <p>{msg.text}</p>

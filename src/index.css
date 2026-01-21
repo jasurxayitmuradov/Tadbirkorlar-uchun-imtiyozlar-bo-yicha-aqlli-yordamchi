@@ -54,3 +54,23 @@ body {
 .markdown-body strong {
   @apply text-ion-400 font-semibold;
 }
+
+.markdown-body a {
+  @apply text-ion-400 underline underline-offset-2;
+}
+
+.markdown-body a:hover {
+  @apply text-ion-300;
+}
+
+.markdown-body code {
+  @apply bg-slate-800/80 text-slate-100 px-1.5 py-0.5 rounded;
+}
+
+.markdown-body pre {
+  @apply bg-slate-900/80 border border-white/10 rounded-lg p-3 overflow-x-auto;
+}
+
+.markdown-body blockquote {
+  @apply border-l-2 border-ion-500/50 pl-4 text-slate-300;
+}

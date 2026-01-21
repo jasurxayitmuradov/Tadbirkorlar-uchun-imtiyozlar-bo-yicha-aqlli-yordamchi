@@ -13,7 +13,7 @@ A React + Vite SPA that helps Uzbek entrepreneurs find legal benefits, courses, 
 - React 19 + TypeScript
 - Vite 5
 - Tailwind CSS
-- Google Gemini via `@google/genai`
+- Groq Chat Completions API
 - React Router
 
 ## Architecture (Dev)
@@ -37,8 +37,8 @@ Open: http://localhost:5174
 ## Environment Variables
 Create `.env.local`:
 ```
-VITE_API_KEY=your_gemini_api_key_here
-VITE_GEMINI_MODEL=gemini-2.5-flash
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=llama-3.3-70b-versatile
 ```
 
 ## Scripts
@@ -62,8 +62,8 @@ The `/api/ai` proxy is **dev-only** (Vite middleware). For production, move the 
 
 ## Troubleshooting
 - **EPERM port error**: dev server port 5173 blocked → project uses 5174 by default.
-- **Model not found**: update `VITE_GEMINI_MODEL` to `gemini-2.5-flash`.
-- **No AI response**: verify API key, billing, and model access in Google AI Studio.
+- **Model not found**: update `GROQ_MODEL` to a valid Groq model.
+- **No AI response**: verify API key, billing, and model access in Groq Console.
 - **Node version**: use Node 20+ (`.nvmrc` provided).
 
 ## Security
