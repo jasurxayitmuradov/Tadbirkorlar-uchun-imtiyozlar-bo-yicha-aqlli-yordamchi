@@ -1,0 +1,6 @@
+[
+  { "id": "lexuz", "name": "Lex.uz", "type": "html", "url": "https://lex.uz", "enabled": true },
+  { "id": "govuz", "name": "Gov.uz", "type": "html", "url": "https://gov.uz", "enabled": true },
+  { "id": "soliquz", "name": "Soliq.uz", "type": "html", "url": "https://soliq.uz", "enabled": true },
+  { "id": "statuz", "name": "Stat.uz", "type": "html", "url": "https://stat.uz", "enabled": true }
+]

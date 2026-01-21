@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security report
+    url: https://github.com/jasurxayitmuradov/Tadbirkorlar-uchun-imtiyozlar-bo-yicha-aqlli-yordamchi/security/advisories/new
+    about: Please report security vulnerabilities privately.
