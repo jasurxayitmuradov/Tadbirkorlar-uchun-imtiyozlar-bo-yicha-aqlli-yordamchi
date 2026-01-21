@@ -1,0 +1,35 @@
+[
+  {
+    "id": "n1",
+    "title": "Tadbirkorlik subyektlarini tekshirish tartibi o'zgardi",
+    "summary": "Yangi qarorga ko'ra, tadbirkorlik subyektlarida tekshirishlar faqat \"Xavfni tahlil qilish\" tizimi orqali amalga oshiriladi.",
+    "url": "https://lex.uz",
+    "sourceId": "lexuz",
+    "sourceName": "Lex.uz",
+    "publishedAt": 1715000000000,
+    "tags": ["qonunchilik", "tekshirish", "biznes"],
+    "docRefs": ["PF-101"]
+  },
+  {
+    "id": "n2",
+    "title": "Eksportchilar uchun yangi subsidiya ajratiladi",
+    "summary": "Eksport qilish xarajatlarining 50% gacha qismi davlat tomonidan qoplab berilishi belgilanmoqda.",
+    "url": "https://gov.uz",
+    "sourceId": "govuz",
+    "sourceName": "Gov.uz",
+    "publishedAt": 1714800000000,
+    "tags": ["eksport", "subsidiya", "moliyaviy"],
+    "docRefs": ["PQ-202"]
+  },
+  {
+    "id": "n3",
+    "title": "QQS to'lovchilar uchun maxsus yengilliklar",
+    "summary": "QQS to'lovchisi sifatida ro'yxatdan o'tish tartibi soddalashtirildi va aylanma mablag'larga talab kamaytirildi.",
+    "url": "https://soliq.uz",
+    "sourceId": "soliquz",
+    "sourceName": "Soliq.uz",
+    "publishedAt": 1714500000000,
+    "tags": ["soliq", "qqs", "yengillik"],
+    "docRefs": []
+  }
+]

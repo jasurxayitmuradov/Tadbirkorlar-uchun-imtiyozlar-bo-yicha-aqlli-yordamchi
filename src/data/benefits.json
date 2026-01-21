@@ -1,0 +1,50 @@
+[
+  {
+    "id": "b1",
+    "soha": "IT",
+    "hudud": "Toshkent shahri",
+    "faoliyat": "Dasturiy ta'minot",
+    "title": "IT Park Rezidentlari uchun soliq imtiyozlari",
+    "benefit": "Daromad solig'i 7.5% (odatda 12%), Ijtimoiy soliq 0%.",
+    "eligibility": "IT Park rezidenti maqomini olgan yuridik shaxslar.",
+    "how_to_apply": "IT Park rasmiy sayti orqali ariza topshirish.",
+    "legal_basis": "PF-5099",
+    "tags": ["soliq", "it", "eksport"]
+  },
+  {
+    "id": "b2",
+    "soha": "Qishloq xo'jaligi",
+    "hudud": "Barcha hududlar",
+    "faoliyat": "Issiqxona",
+    "title": "Issiqxona xo'jaliklari uchun bojxona imtiyozlari",
+    "benefit": "Chet eldan olib kiriladigan asbob-uskunalar bojxona to'lovlaridan ozod etiladi.",
+    "eligibility": "Zamonaviy issiqxona tashkil etuvchi tadbirkorlar.",
+    "how_to_apply": "Bojxona qo'mitasiga tegishli hujjatlarni taqdim etish.",
+    "legal_basis": "PQ-4567",
+    "tags": ["bojxona", "import", "agrotex"]
+  },
+  {
+    "id": "b3",
+    "soha": "Xizmat ko'rsatish",
+    "hudud": "Qoraqalpog'iston Respublikasi",
+    "faoliyat": "Turizm",
+    "title": "Qoraqalpog'istonda turizm uchun soliq ta'tillari",
+    "benefit": "Aylanmadan olinadigan soliq 1% ga tushiriladi.",
+    "eligibility": "Mo'ynoq va Bo'zatov tumanlarida ro'yxatdan o'tgan tadbirkorlar.",
+    "how_to_apply": "Soliq inspeksiyasiga xabarnoma yuborish.",
+    "legal_basis": "PF-6000",
+    "tags": ["soliq", "turizm", "hududiy"]
+  },
+  {
+    "id": "b4",
+    "soha": "Hunarmandchilik",
+    "hudud": "Barcha hududlar",
+    "faoliyat": "Milliy hunarmandchilik",
+    "title": "Hunarmandlar uchun daromad solig'idan ozod qilish",
+    "benefit": "Qat'iy belgilangan soliqdan to'liq ozod etiladi.",
+    "eligibility": "\"Hunarmand\" uyushmasi a'zolari.",
+    "how_to_apply": "Uyushmaga a'zo bo'lish va guvohnoma olish.",
+    "legal_basis": "PF-5242",
+    "tags": ["soliq", "hunarmand", "ijtimoiy"]
+  }
+]
