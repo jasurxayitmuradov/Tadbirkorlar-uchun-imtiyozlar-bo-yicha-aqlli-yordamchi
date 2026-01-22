@@ -45,7 +45,6 @@ export const AutoBenefitsPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [demoMode, setDemoMode] = useState(true);
 
   const API_BASE =
     (import.meta.env.VITE_NEWS_API_BASE as string | undefined) ||
@@ -162,8 +161,6 @@ export const AutoBenefitsPage: React.FC = () => {
         setNotifications([]);
       }
     }
-    const demoFlag = localStorage.getItem('bn_auto_demo_mode');
-    if (demoFlag) setDemoMode(demoFlag === 'true');
   }, []);
 
   useEffect(() => {
@@ -344,62 +341,42 @@ export const AutoBenefitsPage: React.FC = () => {
     localStorage.setItem('bn_auto_benefit_status', JSON.stringify(updated));
   };
 
-  const simulateDecision = (title: string, missingFields: string[], missingAttachments: string[], needsEcp = false) => {
-    if (needsEcp) return { decision: 'MANUAL_ONLY' };
-    if (missingFields.length || missingAttachments.length) return { decision: 'SEND_SMS' };
-    if (!selectedBusiness?.consentAutoSubmit) return { decision: 'SEND_SMS' };
-    return { decision: 'AUTO_SUBMIT' };
-  };
-
   const runAuto = async (benefit: any) => {
     if (!selectedBusiness) return;
-    const { missingFields, missingAttachments } = getMissing(benefit);
-    let decision = null;
-    if (demoMode) {
-      decision = simulateDecision(benefit.benefitTitle, missingFields, missingAttachments);
-    } else {
-      const payload = {
-        benefit,
-        user_profile: selectedBusiness,
-        app_base_url: `${window.location.origin}/#`,
-      };
-      const res = await fetch(`${API_BASE}/api/benefits/decision`, {
+    const payload = {
+      benefit,
+      user_profile: selectedBusiness,
+      app_base_url: `${window.location.origin}/#`,
+    };
+    const res = await fetch(`${API_BASE}/api/benefits/decision`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      setStatus(benefit.benefitId, 'Failed');
+      return;
+    }
+    const decision = await res.json();
+    if (decision.decision === 'AUTO_SUBMIT') {
+      const submitRes = await fetch(`${API_BASE}/api/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(decision.submit_request.body),
       });
-      if (!res.ok) {
-        setStatus(benefit.benefitId, 'Failed');
-        return;
-      }
-      decision = await res.json();
-    }
-    if (decision.decision === 'AUTO_SUBMIT') {
-      if (demoMode) {
+      if (submitRes.ok) {
         setStatus(benefit.benefitId, 'Submitted');
       } else {
-        const submitRes = await fetch(`${API_BASE}/api/submit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(decision.submit_request.body),
-        });
-        if (submitRes.ok) {
-          setStatus(benefit.benefitId, 'Submitted');
-        } else {
-          setStatus(benefit.benefitId, 'Failed');
-        }
+        setStatus(benefit.benefitId, 'Failed');
       }
     } else if (decision.decision === 'SEND_SMS') {
-      if (!demoMode) {
-        await fetch(`${API_BASE}/api/notify/sms`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(decision.sms),
-        });
-      }
+      await fetch(`${API_BASE}/api/notify/sms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(decision.sms),
+      });
       setStatus(benefit.benefitId, 'Needs_Info');
-      const smsText = decision.sms?.text || `Imtiyoz: ${benefit.benefitTitle}. Profilni to‘ldiring.`;
-      const entry = { id: `sms-${Date.now()}`, text: smsText, createdAt: Date.now() };
+      const entry = { id: `sms-${Date.now()}`, text: decision.sms.text, createdAt: Date.now() };
       const updated = [entry, ...notifications];
       setNotifications(updated);
       localStorage.setItem('bn_auto_notifications', JSON.stringify(updated));
@@ -410,54 +387,40 @@ export const AutoBenefitsPage: React.FC = () => {
 
   const runAutoTax = async (app: any) => {
     if (!selectedBusiness) return;
-    const missingFields = app.requiredFields.filter((field: string) => !selectedBusiness?.[field]);
-    const missingAttachments = app.requiredAttachments.filter((att: string) => !selectedBusiness?.attachments?.[att]);
-    let decision = null;
-    if (demoMode) {
-      decision = simulateDecision(app.title, missingFields, missingAttachments, app.needsECP);
-    } else {
-      const payload = {
-        tax_application: app,
-        user_profile: selectedBusiness,
-        app_base_url: `${window.location.origin}/#`,
-      };
-      const res = await fetch(`${API_BASE}/api/tax/decide`, {
+    const payload = {
+      tax_application: app,
+      user_profile: selectedBusiness,
+      app_base_url: `${window.location.origin}/#`,
+    };
+    const res = await fetch(`${API_BASE}/api/tax/decide`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      setStatus(app.applicationId, 'Failed');
+      return;
+    }
+    const decision = await res.json();
+    if (decision.decision === 'AUTO_SUBMIT') {
+      const submitRes = await fetch(`${API_BASE}/api/mygov/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(decision.submit_request.body),
       });
-      if (!res.ok) {
-        setStatus(app.applicationId, 'Failed');
-        return;
-      }
-      decision = await res.json();
-    }
-    if (decision.decision === 'AUTO_SUBMIT') {
-      if (demoMode) {
+      if (submitRes.ok) {
         setStatus(app.applicationId, 'Submitted');
       } else {
-        const submitRes = await fetch(`${API_BASE}/api/mygov/submit`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(decision.submit_request.body),
-        });
-        if (submitRes.ok) {
-          setStatus(app.applicationId, 'Submitted');
-        } else {
-          setStatus(app.applicationId, 'Failed');
-        }
+        setStatus(app.applicationId, 'Failed');
       }
     } else if (decision.decision === 'SEND_SMS' || decision.decision === 'MANUAL_ONLY') {
-      if (!demoMode) {
-        await fetch(`${API_BASE}/api/notify/sms`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(decision.sms),
-        });
-      }
+      await fetch(`${API_BASE}/api/notify/sms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(decision.sms),
+      });
       setStatus(app.applicationId, decision.decision === 'MANUAL_ONLY' ? 'Draft' : 'Needs_Info');
-      const smsText = decision.sms?.text || `Soliq arizasi: ${app.title}. Profilni to‘ldiring.`;
-      const entry = { id: `sms-${Date.now()}`, text: smsText, createdAt: Date.now() };
+      const entry = { id: `sms-${Date.now()}`, text: decision.sms.text, createdAt: Date.now() };
       const updated = [entry, ...notifications];
       setNotifications(updated);
       localStorage.setItem('bn_auto_notifications', JSON.stringify(updated));
@@ -470,19 +433,6 @@ export const AutoBenefitsPage: React.FC = () => {
         <h1 className="text-3xl font-bold text-white mb-2">Imtiyozlarni avtomatik qabul qilish</h1>
         <p className="text-slate-400">Arizalarni tez va soddalashtirilgan tarzda qabul qilish (MVP demo).</p>
       </header>
-
-      <div className="flex items-center gap-3 text-sm text-slate-300">
-        <input
-          type="checkbox"
-          checked={demoMode}
-          onChange={(e) => {
-            setDemoMode(e.target.checked);
-            localStorage.setItem('bn_auto_demo_mode', String(e.target.checked));
-          }}
-          className="accent-ion-500"
-        />
-        Demo rejim (API’lar ishlamasdan sun’iy yuborish)
-      </div>
 
       <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
         <div className="space-y-4">
