@@ -138,6 +138,18 @@ export const AutoBenefitsPage: React.FC = () => {
       try {
         const parsed = JSON.parse(prof);
         setAutoProfile(parsed);
+        const existing = localStorage.getItem(BUSINESS_KEY);
+        if (!existing) {
+          const initial = [{
+            ...parsed,
+            businessId: 'B-001',
+            businessType: businessTypes[0],
+          }];
+          setBusinesses(initial);
+          setSelectedBusinessId('B-001');
+          localStorage.setItem(BUSINESS_KEY, JSON.stringify(initial));
+          localStorage.setItem(BUSINESS_SELECTED_KEY, 'B-001');
+        }
       } catch {
         setAutoProfile(null);
       }
@@ -162,48 +174,6 @@ export const AutoBenefitsPage: React.FC = () => {
       }
     }
   }, []);
-
-  useEffect(() => {
-    if (businesses.length > 0) {
-      if (!selectedBusinessId) {
-        setSelectedBusinessId(businesses[0].businessId);
-        localStorage.setItem(BUSINESS_SELECTED_KEY, businesses[0].businessId);
-      }
-      return;
-    }
-    const base = autoProfile || {
-      userId: 'U-001',
-      consentAutoSubmit: false,
-      legalForm: 'YTT',
-      companyName: '',
-      firstName: '',
-      lastName: '',
-      tin: '',
-      phone: '',
-      region: 'Toshkent shahri',
-      address: '',
-      oked: [],
-      bankAccount: '',
-      email: '',
-      employeesCount: 0,
-      annualTurnover: 0,
-      attachments: {
-        registrationCert: null,
-        charter: null,
-        directorOrder: null,
-        passportCopy: null,
-      },
-    };
-    const initial = [{
-      ...base,
-      businessId: 'B-001',
-      businessType: businessTypes[0],
-    }];
-    setBusinesses(initial);
-    setSelectedBusinessId('B-001');
-    localStorage.setItem(BUSINESS_KEY, JSON.stringify(initial));
-    localStorage.setItem(BUSINESS_SELECTED_KEY, 'B-001');
-  }, [autoProfile, businesses.length, selectedBusinessId]);
 
   const updateField = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
