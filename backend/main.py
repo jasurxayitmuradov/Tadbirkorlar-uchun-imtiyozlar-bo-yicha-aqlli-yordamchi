@@ -330,6 +330,10 @@ def _get_missing_fields(required_fields: List[str], user: UserProfile) -> List[s
     missing = []
     for field in required_fields:
         value = getattr(user, field, None)
+        if field == "oked":
+            if not value or (isinstance(value, list) and len(value) == 0):
+                missing.append(field)
+                continue
         if value is None or (isinstance(value, str) and not value.strip()) or (isinstance(value, list) and len(value) == 0):
             missing.append(field)
     return missing
@@ -396,6 +400,10 @@ def _make_decision(payload: DecisionRequest) -> dict:
     fields = {}
     for key in benefit.applicationSpec.requiredFields + benefit.applicationSpec.optionalFields:
         value = getattr(user, key, None)
+        if key == "oked":
+            if value and isinstance(value, list) and len(value) > 0:
+                fields["okedCsv"] = ", ".join(value)
+            continue
         if value is not None and value != "":
             fields[key] = value
 
@@ -465,6 +473,10 @@ def _make_tax_decision(payload: TaxDecisionRequest) -> dict:
     fields = {}
     for key in app.requiredFields:
         value = getattr(user, key, None)
+        if key == "oked":
+            if value and isinstance(value, list) and len(value) > 0:
+                fields["okedCsv"] = ", ".join(value)
+            continue
         if value is not None and value != "":
             fields[key] = value
 
