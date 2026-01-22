@@ -1,50 +1,110 @@
-[
-  {
-    "id": "b1",
-    "soha": "IT",
-    "hudud": "Toshkent shahri",
-    "faoliyat": "Dasturiy ta'minot",
-    "title": "IT Park Rezidentlari uchun soliq imtiyozlari",
-    "benefit": "Daromad solig'i 7.5% (odatda 12%), Ijtimoiy soliq 0%.",
-    "eligibility": "IT Park rezidenti maqomini olgan yuridik shaxslar.",
-    "how_to_apply": "IT Park rasmiy sayti orqali ariza topshirish.",
-    "legal_basis": "PF-5099",
-    "tags": ["soliq", "it", "eksport"]
-  },
-  {
-    "id": "b2",
-    "soha": "Qishloq xo'jaligi",
-    "hudud": "Barcha hududlar",
-    "faoliyat": "Issiqxona",
-    "title": "Issiqxona xo'jaliklari uchun bojxona imtiyozlari",
-    "benefit": "Chet eldan olib kiriladigan asbob-uskunalar bojxona to'lovlaridan ozod etiladi.",
-    "eligibility": "Zamonaviy issiqxona tashkil etuvchi tadbirkorlar.",
-    "how_to_apply": "Bojxona qo'mitasiga tegishli hujjatlarni taqdim etish.",
-    "legal_basis": "PQ-4567",
-    "tags": ["bojxona", "import", "agrotex"]
-  },
-  {
-    "id": "b3",
-    "soha": "Xizmat ko'rsatish",
-    "hudud": "Qoraqalpog'iston Respublikasi",
-    "faoliyat": "Turizm",
-    "title": "Qoraqalpog'istonda turizm uchun soliq ta'tillari",
-    "benefit": "Aylanmadan olinadigan soliq 1% ga tushiriladi.",
-    "eligibility": "Mo'ynoq va Bo'zatov tumanlarida ro'yxatdan o'tgan tadbirkorlar.",
-    "how_to_apply": "Soliq inspeksiyasiga xabarnoma yuborish.",
-    "legal_basis": "PF-6000",
-    "tags": ["soliq", "turizm", "hududiy"]
-  },
-  {
-    "id": "b4",
-    "soha": "Hunarmandchilik",
-    "hudud": "Barcha hududlar",
-    "faoliyat": "Milliy hunarmandchilik",
-    "title": "Hunarmandlar uchun daromad solig'idan ozod qilish",
-    "benefit": "Qat'iy belgilangan soliqdan to'liq ozod etiladi.",
-    "eligibility": "\"Hunarmand\" uyushmasi a'zolari.",
-    "how_to_apply": "Uyushmaga a'zo bo'lish va guvohnoma olish.",
-    "legal_basis": "PF-5242",
-    "tags": ["soliq", "hunarmand", "ijtimoiy"]
-  }
-]
+{
+  "benefit_id": "DEMO-1",
+  "benefit_title": "Imtiyoz (demo): Tadbirkorlikni qo‘llab-quvvatlash yo‘l xaritasi",
+  "benefit_summary": "Ushbu demo roadmap tadbirkorlar uchun imtiyoz olish jarayonining amaliy, realistik va mantiqan izchil bosqichlarini ko‘rsatadi. Aniq hujjatga bog‘lanmagan.",
+  "status": "demo",
+  "status_warning": true,
+  "target_audience": ["YTT", "MChJ", "Startaplar"],
+  "process_steps": [
+    {
+      "id": "S1",
+      "title": "Moslikni tekshirish",
+      "description": "Imtiyoz kimlarga mo‘ljallanganini aniqlang (soha, hudud, hajm).",
+      "owner": "tadbirkor",
+      "inputs": [],
+      "outputs": ["moslik xulosasi"]
+    },
+    {
+      "id": "S2",
+      "title": "Talablar ro‘yxati",
+      "description": "Kerakli talab va mezonlarni ro‘yxat qiling.",
+      "owner": "tadbirkor",
+      "inputs": ["moslik xulosasi"],
+      "outputs": ["talablar ro‘yxati"]
+    },
+    {
+      "id": "S3",
+      "title": "Hujjatlarni tayyorlash",
+      "description": "Ariza va asosiy hujjatlarni yig‘ing (reja, hisob-kitob, ro‘yxatdan o‘tish hujjatlari).",
+      "owner": "tadbirkor",
+      "inputs": ["talablar ro‘yxati"],
+      "outputs": ["hujjatlar to‘plami"]
+    },
+    {
+      "id": "S4",
+      "title": "Ariza topshirish",
+      "description": "Portal yoki vakolatli organga ariza yuboring.",
+      "owner": "tadbirkor",
+      "inputs": ["hujjatlar to‘plami"],
+      "outputs": ["qabul kvitansiyasi"]
+    },
+    {
+      "id": "S5",
+      "title": "Tekshiruv/ko‘rib chiqish",
+      "description": "Vakolatli organ hujjatlarni tekshiradi va baholaydi.",
+      "owner": "organ",
+      "inputs": ["qabul kvitansiyasi"],
+      "outputs": ["baholash natijasi"]
+    },
+    {
+      "id": "S6",
+      "title": "Qaror: tasdiqlandimi?",
+      "description": "Natija bo‘yicha ijobiy yoki rad qarori chiqadi.",
+      "owner": "organ",
+      "inputs": ["baholash natijasi"],
+      "outputs": ["qaror"]
+    },
+    {
+      "id": "S7",
+      "title": "Shartnoma/rasmiylashtirish",
+      "description": "Tasdiqlansa, shartnoma yoki rasmiy hujjatlar imzolanadi.",
+      "owner": "organ",
+      "inputs": ["qaror"],
+      "outputs": ["rasmiy tasdiq"]
+    },
+    {
+      "id": "S8",
+      "title": "Imtiyozni qo‘llash/olish",
+      "description": "Imtiyoz amalda qo‘llanadi (masalan: to‘lov yengilligi, subsidiya ajratilishi).",
+      "owner": "organ",
+      "inputs": ["rasmiy tasdiq"],
+      "outputs": ["imtiyoz berildi"]
+    },
+    {
+      "id": "S9",
+      "title": "Monitoring va hisobot",
+      "description": "Kerak bo‘lsa, hisobot topshirish va monitoring talablariga rioya qiling.",
+      "owner": "tadbirkor",
+      "inputs": ["imtiyoz berildi"],
+      "outputs": ["hisobot/monitoring"]
+    }
+  ],
+  "edges": [
+    {"from": "S1", "to": "S2", "label": ""},
+    {"from": "S2", "to": "S3", "label": ""},
+    {"from": "S3", "to": "S4", "label": ""},
+    {"from": "S4", "to": "S5", "label": ""},
+    {"from": "S5", "to": "S6", "label": ""},
+    {"from": "S6", "to": "S7", "label": "Ha (tasdiq)"},
+    {"from": "S6", "to": "S3", "label": "Yo‘q (tuzatish)"},
+    {"from": "S7", "to": "S8", "label": ""},
+    {"from": "S8", "to": "S9", "label": ""}
+  ],
+  "required_documents": [
+    {"doc": "Ariza (demo)", "required": true, "source_ref": "DEMO"},
+    {"doc": "Ro‘yxatdan o‘tish hujjatlari (demo)", "required": true, "source_ref": "DEMO"},
+    {"doc": "Loyiha/reja yoki hisob-kitob (demo)", "required": false, "source_ref": "DEMO"}
+  ],
+  "where_to_apply": [
+    {
+      "channel": "Portal yoki vakolatli organ (demo)",
+      "details": "Hududiy bo‘lim yoki onlayn portal orqali",
+      "source_ref": "DEMO"
+    }
+  ],
+  "fees_and_deadlines": [
+    {"item": "Muddat", "value": "Hujjatda aniq ko‘rsatilmagan (demo)", "source_ref": "DEMO"},
+    {"item": "To‘lov", "value": "Hujjatda aniq ko‘rsatilmagan (demo)", "source_ref": "DEMO"}
+  ],
+  "citations": []
+}

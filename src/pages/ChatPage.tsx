@@ -1,12 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, Sparkles, User, Bot } from 'lucide-react';
-import { Message, UserProfile } from '../types';
+import { Message, UserProfile, ContextPayload } from '../types';
 import { sendMessageToAI } from '../services/aiService';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export const ChatPage: React.FC = () => {
   const profile: UserProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+  const contextPayload: ContextPayload | undefined = (() => {
+    try {
+      const raw = localStorage.getItem('legal_context');
+      if (!raw) return undefined;
+      return JSON.parse(raw) as ContextPayload;
+    } catch {
+      return undefined;
+    }
+  })();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -24,6 +33,13 @@ export const ChatPage: React.FC = () => {
   };
 
   useEffect(scrollToBottom, [messages]);
+  useEffect(() => {
+    const prefill = localStorage.getItem('chat_prefill');
+    if (prefill) {
+      setInput(prefill);
+      localStorage.removeItem('chat_prefill');
+    }
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -39,7 +55,7 @@ export const ChatPage: React.FC = () => {
     setInput('');
     setIsLoading(true);
 
-    const aiResponseText = await sendMessageToAI(input, profile, messages);
+    const aiResponseText = await sendMessageToAI(input, profile, messages, contextPayload);
 
     const aiMsg: Message = {
       id: (Date.now() + 1).toString(),

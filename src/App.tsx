@@ -3,12 +3,19 @@ import { HashRouter as Router, Routes, Route, Navigate, useLocation, Outlet } fr
 import { useTranslation } from 'react-i18next';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
+import { Auth } from './pages/Auth';
+import { Profile } from './pages/Profile';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { isAuthed } from './lib/auth';
 import { DashboardPage } from './pages/DashboardPage';
 import { ChatPage } from './pages/ChatPage';
-import { CoursesPage } from './pages/CoursesPage';
+import { Courses } from './pages/Courses';
+import { CourseDetail } from './pages/CourseDetail';
+import { LessonPlayer } from './pages/LessonPlayer';
 import { NewsPage } from './pages/NewsPage';
 import { BenefitsPage } from './pages/BenefitsPage';
 import { SourcesPage } from './pages/SourcesPage';
+import { PricingPage } from './pages/PricingPage';
 import { Sidebar } from './components/Sidebar';
 import { Menu, Monitor, Sun, Moon } from 'lucide-react';
 import { applyTheme, getStoredTheme, initTheme, setStoredTheme } from './services/theme';
@@ -21,8 +28,7 @@ const AppShell = () => {
   const location = useLocation();
   const [theme, setTheme] = React.useState<Theme>(getStoredTheme());
 
-  const user = localStorage.getItem('user_profile');
-  if (!user) return <Navigate to="/login" />;
+  if (!isAuthed()) return <Navigate to="/auth" />;
 
   const pageTitles: Record<string, string> = {
     '/app/dashboard': 'Dashboard',
@@ -147,16 +153,32 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/courses/:courseId" element={<CourseDetail />} />
+        <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonPlayer />} />
         <Route path="/app" element={<AppShell />}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="chat" element={<ChatPage />} />
-          <Route path="courses" element={<CoursesPage />} />
+          <Route path="courses" element={<Courses />} />
+          <Route path="courses/:courseId" element={<CourseDetail />} />
+          <Route path="courses/:courseId/lessons/:lessonId" element={<LessonPlayer />} />
           <Route path="benefits" element={<BenefitsPage />} />
           <Route path="news" element={<NewsPage />} />
           <Route path="sources" element={<SourcesPage />} />
+          <Route path="pricing" element={<PricingPage />} />
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
           <Route path="settings" element={<SettingsPage />} />
           <Route index element={<Navigate to="dashboard" />} />
         </Route>
+        <Route path="/profile" element={<Navigate to="/app/profile" replace />} />
         <Route path="*" element={<Navigate to="/app" />} />
       </Routes>
     </Router>

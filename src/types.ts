@@ -39,6 +39,8 @@ export interface NewsItem {
   id: string;
   title: string;
   summary: string;
+  impact?: string;
+  changes?: string;
   url: string;
   sourceId: string;
   sourceName: string;
@@ -47,17 +49,72 @@ export interface NewsItem {
   docRefs: string[]; // PF-\d+, etc.
 }
 
-export interface BenefitItem {
+export interface ContextItem {
   id: string;
-  soha: string;
-  hudud: string;
-  faoliyat: string;
+  doc_title: string;
+  doc_type: 'Qonun' | 'Farmon' | 'Qaror' | 'Boshqa';
+  source: 'lex.uz' | 'gov.uz' | 'other';
+  url: string;
+  status_hint: 'amaldagi' | 'amalda emas' | 'unknown';
+  published_date: string;
+  effective_date: string;
+  last_updated: string;
+  article_or_clause: string;
+  snippet_text: string;
+  snippet_language: 'uz' | 'ru';
+  confidence: number;
+}
+
+export interface ContextPayload {
+  items: ContextItem[];
+}
+
+export interface BenefitProcessStep {
+  id: string;
   title: string;
-  benefit: string;
-  eligibility: string;
-  how_to_apply: string;
-  legal_basis: string;
-  tags: string[];
+  description: string;
+  owner: 'tadbirkor' | 'organ' | 'bank' | 'portal' | 'hududiy bo‘lim';
+  inputs: string[];
+  outputs: string[];
+}
+
+export interface BenefitEdge {
+  from: string;
+  to: string;
+  label: string;
+}
+
+export interface BenefitDocumentRequirement {
+  doc: string;
+  required: boolean;
+  source_ref: string;
+}
+
+export interface BenefitApplyChannel {
+  channel: string;
+  details: string;
+  source_ref: string;
+}
+
+export interface BenefitFeeOrDeadline {
+  item: string;
+  value: string;
+  source_ref: string;
+}
+
+export interface BenefitRoadmap {
+  benefit_id: string;
+  benefit_title: string;
+  benefit_summary: string;
+  status: 'demo';
+  status_warning: boolean;
+  target_audience: string[];
+  process_steps: BenefitProcessStep[];
+  edges: BenefitEdge[];
+  required_documents: BenefitDocumentRequirement[];
+  where_to_apply: BenefitApplyChannel[];
+  fees_and_deadlines: BenefitFeeOrDeadline[];
+  citations: string[];
 }
 
 export interface CourseSource {

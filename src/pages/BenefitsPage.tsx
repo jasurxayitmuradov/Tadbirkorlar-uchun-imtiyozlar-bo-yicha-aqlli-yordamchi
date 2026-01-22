@@ -1,136 +1,340 @@
 import React, { useState, useEffect } from 'react';
-import { getBenefits, filterBenefits } from '../services/benefitsService';
-import { BenefitItem, UserProfile } from '../types';
+import { getBenefits } from '../services/benefitsService';
+import { sendMessageToAI } from '../services/aiService';
+import { BenefitRoadmap, ContextPayload, UserProfile } from '../types';
 import { Card } from '../components/Card';
 import { Modal } from '../components/Modal';
-import { Search, MapPin, FileText } from 'lucide-react';
+import { AlertTriangle, ListChecks, FileText, Route, Sparkles } from 'lucide-react';
 
 export const BenefitsPage: React.FC = () => {
-  const profile: UserProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
-  const [benefits, setBenefits] = useState<BenefitItem[]>([]);
-  const [query, setQuery] = useState('');
-  const [region, setRegion] = useState(profile.region || 'Toshkent shahri');
-  const [selectedBenefit, setSelectedBenefit] = useState<BenefitItem | null>(null);
+  const [roadmap, setRoadmap] = useState<BenefitRoadmap | null>(null);
+  const [selectedRoadmap, setSelectedRoadmap] = useState<BenefitRoadmap | null>(null);
+  const [aiAdvice, setAiAdvice] = useState<string>('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string>('');
 
   useEffect(() => {
-    const allBenefits = getBenefits();
-    setBenefits(filterBenefits(allBenefits, region, query));
-  }, [region, query]);
+    setRoadmap(getBenefits());
+  }, []);
 
-  const regions = [
-    "Barcha hududlar", "Toshkent shahri", "Toshkent viloyati", "Andijon", "Buxoro", 
-    "Farg'ona", "Jizzax", "Xorazm", "Namangan", "Navoiy", 
-    "Qashqadaryo", "Qoraqalpog'iston", "Samarqand", "Sirdaryo", "Surxondaryo"
-  ];
+  const buildRoadmapContext = (data: BenefitRoadmap): ContextPayload => {
+    const steps = data.process_steps
+      .map(step => `${step.id}. ${step.title} — ${step.description}`)
+      .join('\n');
+    const snippet = [
+      data.benefit_title,
+      data.benefit_summary,
+      `Auditoriya: ${data.target_audience.join(', ')}`,
+      `Bosqichlar:\n${steps}`,
+    ].join('\n');
+
+    return {
+      items: [
+        {
+          id: data.benefit_id,
+          doc_title: data.benefit_title,
+          doc_type: 'Boshqa',
+          source: 'other',
+          url: 'DEMO',
+          status_hint: 'unknown',
+          published_date: '',
+          effective_date: '',
+          last_updated: '',
+          article_or_clause: "Band/Bo'lim topilmadi",
+          snippet_text: snippet,
+          snippet_language: 'uz',
+          confidence: 0.4,
+        },
+      ],
+    };
+  };
+
+  const handleStartChat = (data: BenefitRoadmap) => {
+    const context = buildRoadmapContext(data);
+    localStorage.setItem('legal_context', JSON.stringify(context));
+    localStorage.setItem(
+      'chat_prefill',
+      `${data.benefit_title} bo'yicha yo'l xaritani amaliy tilda tushuntirib bering.`
+    );
+    window.location.hash = '#/app/chat';
+  };
+
+  const handleAiAdvice = async (data: BenefitRoadmap) => {
+    const profile: UserProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
+    const context = buildRoadmapContext(data);
+    setAiLoading(true);
+    setAiError('');
+    const response = await sendMessageToAI(
+      "Roadmap bo'yicha qisqa tavsiya, xatoliklardan saqlanish va keyingi qadamlar ro'yxatini bering.",
+      profile,
+      [],
+      context
+    );
+    setAiAdvice(response);
+    setAiLoading(false);
+  };
+
+  const renderGraph = (data: BenefitRoadmap) => {
+    const nodeWidth = 240;
+    const nodeHeight = 56;
+    const verticalGap = 28;
+    const leftPadding = 24;
+    const topPadding = 24;
+    const height =
+      topPadding * 2 + data.process_steps.length * (nodeHeight + verticalGap) - verticalGap;
+
+    const nodes = data.process_steps.map((step, index) => {
+      const y = topPadding + index * (nodeHeight + verticalGap);
+      return {
+        id: step.id,
+        title: step.title,
+        owner: step.owner,
+        x: leftPadding,
+        y,
+        cx: leftPadding + nodeWidth / 2,
+        cy: y + nodeHeight / 2,
+      };
+    });
+
+    const nodeById = new Map(nodes.map(node => [node.id, node]));
+
+    return (
+      <div className="bg-slate-900/70 border border-white/10 rounded-xl p-4 overflow-x-auto">
+        <svg
+          width={nodeWidth + leftPadding * 2}
+          height={height}
+          viewBox={`0 0 ${nodeWidth + leftPadding * 2} ${height}`}
+        >
+          {data.edges.map(edge => {
+            const from = nodeById.get(edge.from);
+            const to = nodeById.get(edge.to);
+            if (!from || !to) return null;
+            const startX = from.cx;
+            const startY = from.y + nodeHeight;
+            const endX = to.cx;
+            const endY = to.y;
+            const midY = (startY + endY) / 2;
+            return (
+              <g key={`${edge.from}-${edge.to}`}>
+                <path
+                  d={`M ${startX} ${startY} C ${startX} ${midY} ${endX} ${midY} ${endX} ${endY}`}
+                  stroke="rgba(148, 163, 184, 0.7)"
+                  strokeWidth="2"
+                  fill="none"
+                />
+                {edge.label && (
+                  <text
+                    x={startX + 8}
+                    y={midY - 6}
+                    fill="rgba(148, 163, 184, 0.9)"
+                    fontSize="10"
+                  >
+                    {edge.label}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+
+          {nodes.map(node => (
+            <g key={node.id}>
+              <rect
+                x={node.x}
+                y={node.y}
+                width={nodeWidth}
+                height={nodeHeight}
+                rx="12"
+                fill="rgba(15, 23, 42, 0.9)"
+                stroke="rgba(56, 189, 248, 0.5)"
+                strokeWidth="1.2"
+              />
+              <text
+                x={node.x + 12}
+                y={node.y + 22}
+                fill="rgba(226, 232, 240, 0.95)"
+                fontSize="12"
+                fontWeight="600"
+              >
+                {node.id}. {node.title}
+              </text>
+              <text
+                x={node.x + 12}
+                y={node.y + 40}
+                fill="rgba(148, 163, 184, 0.9)"
+                fontSize="10"
+              >
+                {node.owner}
+              </text>
+            </g>
+          ))}
+        </svg>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6 pb-20 animate-fade-in">
       <header>
-        <h1 className="text-3xl font-bold text-white mb-2">Benefits Catalog</h1>
-        <p className="text-slate-400">Subsidies, tax breaks, and grants available in your region.</p>
+        <h1 className="text-3xl font-bold text-white mb-2">Imtiyozlar yo‘l xaritasi (demo)</h1>
+        <p className="text-slate-400">Hackaton MVP uchun demo “roadmap” — amaliy jarayon namoyishi.</p>
       </header>
 
-      {/* Filters */}
-      <div className="glass-panel p-4 rounded-xl flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-          <input
-            type="text"
-            placeholder="Search benefits (e.g., IT, tax, export)..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-slate-950/50 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-white focus:border-ion-500 outline-none"
-          />
+      {roadmap?.status_warning && (
+        <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 text-amber-200 px-4 py-3 rounded-xl">
+          <AlertTriangle size={18} />
+          <span className="text-sm">Demo ma’lumot. Aniq hujjatga bog‘lanmagan.</span>
         </div>
-        <div className="relative md:w-64">
-          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-          <select
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-            className="w-full bg-slate-950/50 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-white focus:border-ion-500 outline-none appearance-none"
-          >
-            {regions.map(r => <option key={r} value={r} className="bg-slate-900">{r}</option>)}
-          </select>
-        </div>
-      </div>
+      )}
 
-      {/* List */}
-      <div className="grid grid-cols-1 gap-4">
-        {benefits.map(item => (
-          <Card 
-            key={item.id} 
-            onClick={() => setSelectedBenefit(item)}
-            className="group hover:border-l-4 hover:border-l-ion-500 transition-all"
-          >
-            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                   <span className="text-xs font-bold text-ion-400 uppercase tracking-wider">{item.soha}</span>
-                   <span className="text-slate-600">•</span>
-                   <span className="text-xs text-slate-400">{item.faoliyat}</span>
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2 group-hover:text-ion-300 transition-colors">{item.title}</h3>
-                <p className="text-slate-300 text-sm line-clamp-2">{item.benefit}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {item.tags.map(tag => (
-                    <span key={tag} className="text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded">#{tag}</span>
-                  ))}
-                </div>
+      {roadmap && (
+        <Card
+          onClick={() => setSelectedRoadmap(roadmap)}
+          className="group hover:border-l-4 hover:border-l-ion-500 transition-all"
+        >
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-bold text-ion-400 uppercase tracking-wider">Roadmap</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-xs text-slate-400">{roadmap.status}</span>
               </div>
-              
-              <div className="flex flex-col items-start md:items-end gap-2 min-w-[120px]">
-                <span className="flex items-center gap-1 text-xs font-mono text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded border border-yellow-400/20">
-                  <FileText size={12} /> {item.legal_basis}
-                </span>
-                <span className="text-xs text-slate-500 flex items-center gap-1">
-                   <MapPin size={12} /> {item.hudud === "Barcha hududlar" ? "All Regions" : item.hudud}
-                </span>
+              <h3 className="text-lg font-bold text-white mb-2 group-hover:text-ion-300 transition-colors">
+                {roadmap.benefit_title}
+              </h3>
+              <p className="text-slate-300 text-sm line-clamp-2">{roadmap.benefit_summary}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {roadmap.target_audience.map(tag => (
+                  <span key={tag} className="text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded">#{tag}</span>
+                ))}
               </div>
             </div>
-          </Card>
-        ))}
-        {benefits.length === 0 && (
-          <div className="py-12 text-center">
-            <div className="bg-slate-900/50 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-slate-600">
-              <Search size={32} />
+
+            <div className="flex flex-col items-start md:items-end gap-2 min-w-[140px]">
+              <span className="flex items-center gap-1 text-xs text-emerald-300 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
+                <ListChecks size={12} /> {roadmap.process_steps.length} bosqich
+              </span>
+              <span className="flex items-center gap-1 text-xs text-slate-500">
+                <Route size={12} /> demo ko‘rinish
+              </span>
             </div>
-            <p className="text-slate-400">No benefits found for this region/query.</p>
-            <p className="text-sm text-slate-600 mt-2">Try selecting "Barcha hududlar" or changing your search.</p>
           </div>
-        )}
-      </div>
+        </Card>
+      )}
+
+      {roadmap && (
+        <div className="bg-slate-900/60 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <p className="text-sm text-slate-300">
+                Roadmap bo‘yicha AI maslahat va tavsiyalarni oling.
+              </p>
+              <p className="text-xs text-slate-500">
+                Demo ma’lumot, aniq hujjatga bog‘lanmagan.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleAiAdvice(roadmap)}
+                disabled={aiLoading}
+                className="flex items-center gap-2 text-xs bg-ion-600/20 hover:bg-ion-600/30 border border-ion-500/30 text-ion-200 px-3 py-2 rounded-lg transition-colors disabled:opacity-60"
+              >
+                <Sparkles size={14} /> {aiLoading ? 'AI tahlil qilmoqda...' : 'AI tavsiya'}
+              </button>
+              <button
+                onClick={() => handleStartChat(roadmap)}
+                className="flex items-center gap-2 text-xs bg-slate-800 hover:bg-slate-700 border border-white/10 text-slate-200 px-3 py-2 rounded-lg transition-colors"
+              >
+                <Sparkles size={14} /> AI bilan suhbat
+              </button>
+            </div>
+          </div>
+
+          {aiError && <p className="text-xs text-red-400 mt-3">{aiError}</p>}
+          {aiAdvice && (
+            <div className="mt-4 bg-slate-950/70 border border-white/10 rounded-lg p-3 text-sm text-slate-200 whitespace-pre-wrap">
+              {aiAdvice}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Detail Modal */}
       <Modal
-        isOpen={!!selectedBenefit}
-        onClose={() => setSelectedBenefit(null)}
-        title={selectedBenefit?.title || ''}
+        isOpen={!!selectedRoadmap}
+        onClose={() => setSelectedRoadmap(null)}
+        title={selectedRoadmap?.benefit_title || ''}
       >
-        {selectedBenefit && (
+        {selectedRoadmap && (
           <div className="space-y-6">
             <div className="p-4 bg-ion-500/10 border border-ion-500/20 rounded-xl">
-              <h4 className="text-sm font-bold text-ion-400 uppercase mb-2">The Benefit</h4>
-              <p className="text-white text-lg font-medium">{selectedBenefit.benefit}</p>
+              <h4 className="text-sm font-bold text-ion-400 uppercase mb-2">Roadmap qisqacha</h4>
+              <p className="text-white text-lg font-medium">{selectedRoadmap.benefit_summary}</p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-sm font-bold text-slate-500 uppercase mb-2">Eligibility</h4>
-                <p className="text-slate-200">{selectedBenefit.eligibility}</p>
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-500 uppercase mb-2">Legal Basis</h4>
-                <p className="text-yellow-400 font-mono flex items-center gap-2">
-                  <FileText size={16} /> {selectedBenefit.legal_basis}
-                </p>
+            <div>
+              <h4 className="text-sm font-bold text-slate-500 uppercase mb-2">Kimlar uchun</h4>
+              <div className="flex flex-wrap gap-2">
+                {selectedRoadmap.target_audience.map(tag => (
+                  <span key={tag} className="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded">#{tag}</span>
+                ))}
               </div>
             </div>
 
             <div>
-              <h4 className="text-sm font-bold text-slate-500 uppercase mb-2">How to Apply</h4>
-              <p className="text-slate-200 bg-slate-900 p-4 rounded-lg border border-white/5">
-                {selectedBenefit.how_to_apply}
-              </p>
+              <h4 className="text-sm font-bold text-slate-500 uppercase mb-2">Bosqichlar</h4>
+              {renderGraph(selectedRoadmap)}
+              <div className="space-y-3">
+                {selectedRoadmap.process_steps.map(step => (
+                  <div key={step.id} className="bg-slate-900/70 border border-white/10 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-slate-500">{step.id}</span>
+                      <span className="text-xs text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded">
+                        {step.owner}
+                      </span>
+                    </div>
+                    <p className="text-slate-200 font-medium mt-2">{step.title}</p>
+                    <p className="text-slate-400 text-sm mt-1">{step.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="text-sm font-bold text-slate-500 uppercase mb-2">Zarur hujjatlar</h4>
+                <div className="space-y-2">
+                  {selectedRoadmap.required_documents.map(doc => (
+                    <div key={doc.doc} className="flex items-center gap-2 text-slate-300 text-sm">
+                      <FileText size={14} className="text-ion-400" />
+                      <span>{doc.doc}</span>
+                      <span className="text-xs text-slate-500">({doc.required ? 'majburiy' : 'ixtiyoriy'})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-500 uppercase mb-2">Qayerga topshiriladi</h4>
+                <div className="space-y-2 text-sm text-slate-300">
+                  {selectedRoadmap.where_to_apply.map(item => (
+                    <div key={item.channel} className="bg-slate-900/70 border border-white/10 rounded-lg p-3">
+                      <p className="text-slate-200 font-medium">{item.channel}</p>
+                      <p className="text-slate-400 text-sm mt-1">{item.details}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-bold text-slate-500 uppercase mb-2">Muddat va to‘lovlar</h4>
+              <div className="space-y-2 text-sm text-slate-300">
+                {selectedRoadmap.fees_and_deadlines.map(item => (
+                  <div key={item.item} className="flex items-center gap-2">
+                    <span className="text-slate-500">{item.item}:</span>
+                    <span>{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

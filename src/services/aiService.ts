@@ -1,9 +1,10 @@
-import { UserProfile, Message } from "../types";
+import { UserProfile, Message, ContextPayload } from "../types";
 
 export const sendMessageToAI = async (
   currentMessage: string,
   profile: UserProfile,
-  history: Message[]
+  history: Message[],
+  context?: ContextPayload
 ): Promise<string> => {
   try {
     const response = await fetch('/api/ai', {
@@ -13,6 +14,7 @@ export const sendMessageToAI = async (
         message: currentMessage,
         profile,
         history,
+        context,
       }),
     });
 
