@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { 
   LayoutDashboard, Newspaper, MessageSquareText, 
-  GraduationCap, Database, Settings, ShieldCheck, Languages, ChevronDown, UserCircle, FileCheck
+  Gift, GraduationCap, Database, Settings, ShieldCheck, Languages, ChevronDown, UserCircle
 } from 'lucide-react';
 import { Language } from '../types';
 
@@ -16,7 +16,7 @@ const navItems = [
   { path: '/app/dashboard', labelKey: 'sidebar.dashboard', icon: LayoutDashboard },
   { path: '/app/news', labelKey: 'sidebar.news', icon: Newspaper },
   { path: '/app/chat', labelKey: 'sidebar.chat', icon: MessageSquareText },
-  { path: '/app/auto-benefits', labelKey: 'sidebar.auto.benefits', icon: FileCheck },
+  { path: '/app/benefits', labelKey: 'sidebar.benefits', icon: Gift },
   { path: '/app/courses', labelKey: 'sidebar.courses', icon: GraduationCap },
   { path: '/app/sources', labelKey: 'sidebar.sources', icon: Database },
   { path: '/app/profile', labelKey: 'sidebar.profile', icon: UserCircle },

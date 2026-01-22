@@ -13,9 +13,9 @@ import { Courses } from './pages/Courses.tsx';
 import { CourseDetail } from './pages/CourseDetail.tsx';
 import { LessonPlayer } from './pages/LessonPlayer.tsx';
 import { NewsPage } from './pages/NewsPage';
+import { BenefitsPage } from './pages/BenefitsPage';
 import { SourcesPage } from './pages/SourcesPage';
 import { PricingPage } from './pages/PricingPage';
-import { AutoBenefitsPage } from './pages/AutoBenefitsPage';
 import { Sidebar } from './components/Sidebar';
 import { Menu, Monitor, Sun, Moon } from 'lucide-react';
 import { applyTheme, getStoredTheme, initTheme, setStoredTheme } from './services/theme';
@@ -34,7 +34,7 @@ const AppShell = () => {
     '/app/dashboard': 'Dashboard',
     '/app/chat': 'AI Assistant',
     '/app/news': 'Official News',
-    '/app/auto-benefits': 'Imtiyozlarni avtomatik qabul',
+    '/app/benefits': 'Benefits Catalog',
     '/app/courses': 'Courses',
     '/app/sources': 'Data Sources',
     '/app/settings': 'Settings'
@@ -160,10 +160,10 @@ function App() {
         <Route path="/app" element={<AppShell />}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="chat" element={<ChatPage />} />
-          <Route path="auto-benefits" element={<AutoBenefitsPage />} />
           <Route path="courses" element={<Courses />} />
           <Route path="courses/:courseId" element={<CourseDetail />} />
           <Route path="courses/:courseId/lessons/:lessonId" element={<LessonPlayer />} />
+          <Route path="benefits" element={<BenefitsPage />} />
           <Route path="news" element={<NewsPage />} />
           <Route path="sources" element={<SourcesPage />} />
           <Route path="pricing" element={<PricingPage />} />
