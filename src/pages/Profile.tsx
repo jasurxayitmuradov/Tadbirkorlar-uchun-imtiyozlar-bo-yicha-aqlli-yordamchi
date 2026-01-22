@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUser, logout, setPlan } from '../lib/auth';
 import { coursesMock } from '../data/coursesMock';
@@ -23,6 +23,41 @@ export const Profile = () => {
   const navigate = useNavigate();
   const user = getUser();
   const [plan, setPlanState] = React.useState(user?.plan || 'freemium');
+  const [autoProfile, setAutoProfile] = useState(() => {
+    const raw = localStorage.getItem('bn_auto_profile');
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+    const base = {
+      userId: user?.email || 'U-001',
+      consentAutoSubmit: false,
+      legalForm: 'YTT',
+      companyName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      tin: '',
+      phone: '',
+      region: 'Toshkent shahri',
+      address: '',
+      oked: [],
+      bankAccount: '',
+      email: user?.email || '',
+      employeesCount: 0,
+      annualTurnover: 0,
+      attachments: {
+        registrationCert: null,
+        charter: null,
+        directorOrder: null,
+        passportCopy: null,
+      },
+    };
+    localStorage.setItem('bn_auto_profile', JSON.stringify(base));
+    return base;
+  });
 
   const stats = useMemo(() => {
     const usage = getLastDaysUsage(7);
@@ -64,6 +99,24 @@ export const Profile = () => {
     setPlanState('premium');
   };
 
+  const updateAutoProfile = (field: string, value: unknown) => {
+    const updated = { ...autoProfile, [field]: value };
+    setAutoProfile(updated);
+    localStorage.setItem('bn_auto_profile', JSON.stringify(updated));
+  };
+
+  const updateAttachment = (key: string, value: boolean) => {
+    const updated = {
+      ...autoProfile,
+      attachments: {
+        ...autoProfile.attachments,
+        [key]: value ? `${key}-file` : null,
+      },
+    };
+    setAutoProfile(updated);
+    localStorage.setItem('bn_auto_profile', JSON.stringify(updated));
+  };
+
   if (!user) return null;
 
   return (
@@ -94,6 +147,15 @@ export const Profile = () => {
             <p className="text-xs text-slate-500 mt-4">
               MVP demo: ma’lumotlar qurilmada saqlanadi.
             </p>
+            <div className="mt-4 flex items-center gap-2 text-xs text-slate-300">
+              <input
+                type="checkbox"
+                checked={!!autoProfile?.consentAutoSubmit}
+                onChange={(e) => updateAutoProfile('consentAutoSubmit', e.target.checked)}
+                className="accent-ion-500"
+              />
+              Avto yuborishga roziman
+            </div>
           </div>
           <div className="flex flex-col gap-2 w-full md:w-auto">
             <button
@@ -154,6 +216,79 @@ export const Profile = () => {
             <p className="text-xs text-slate-500 mt-1">
               Davomat (40%) + O‘zlashtirish (60%) asosida
             </p>
+          </div>
+        </div>
+
+        <div className="bg-slate-900/70 border border-white/10 rounded-2xl p-6 space-y-4">
+          <h3 className="text-lg font-semibold text-white">Avto ariza uchun profil</h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-slate-400">Kompaniya nomi</label>
+              <input
+                value={autoProfile?.companyName || ''}
+                onChange={(e) => updateAutoProfile('companyName', e.target.value)}
+                className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">STIR</label>
+              <input
+                value={autoProfile?.tin || ''}
+                onChange={(e) => updateAutoProfile('tin', e.target.value)}
+                className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">Telefon</label>
+              <input
+                value={autoProfile?.phone || ''}
+                onChange={(e) => updateAutoProfile('phone', e.target.value)}
+                className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">Tashkiliy shakl</label>
+              <select
+                value={autoProfile?.legalForm || 'YTT'}
+                onChange={(e) => updateAutoProfile('legalForm', e.target.value)}
+                className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
+              >
+                <option value="YTT" className="bg-slate-900">YTT</option>
+                <option value="MChJ" className="bg-slate-900">MChJ</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">Hudud</label>
+              <input
+                value={autoProfile?.region || ''}
+                onChange={(e) => updateAutoProfile('region', e.target.value)}
+                className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">OKED (vergul bilan)</label>
+              <input
+                value={(autoProfile?.oked || []).join(',')}
+                onChange={(e) => updateAutoProfile('oked', e.target.value.split(',').map(v => v.trim()).filter(Boolean))}
+                className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
+              />
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-slate-400 mb-2">Hujjatlar (demo)</p>
+            <div className="grid md:grid-cols-2 gap-2 text-sm text-slate-300">
+              {['registrationCert','charter','directorOrder','passportCopy'].map((key) => (
+                <label key={key} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={!!autoProfile?.attachments?.[key]}
+                    onChange={(e) => updateAttachment(key, e.target.checked)}
+                    className="accent-ion-500"
+                  />
+                  {key}
+                </label>
+              ))}
+            </div>
           </div>
         </div>
       </div>
