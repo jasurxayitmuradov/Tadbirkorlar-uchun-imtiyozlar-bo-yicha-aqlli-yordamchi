@@ -95,34 +95,6 @@ export const AutoBenefitsPage: React.FC = () => {
       contextSnippets: [],
     },
   ];
-  const taxApplications = [
-    {
-      applicationId: 'TAX-001',
-      title: 'Ortiqcha to‘langan soliqni qaytarish (demo)',
-      summary: 'Ortiqcha to‘langan soliq summasini qaytarish bo‘yicha ariza.',
-      serviceUrl: 'https://my.gov.uz/uz/service/123',
-      status_hint: 'amaldagi',
-      submitChannel: 'mygov_api',
-      requiredFields: ['tin', 'firstName', 'lastName', 'phone', 'region'],
-      requiredAttachments: [],
-      needsOneID: true,
-      needsECP: false,
-      contextSnippets: [],
-    },
-    {
-      applicationId: 'TAX-002',
-      title: 'Soliq organiga murojaat (demo)',
-      summary: 'Soliq organiga murojaat qilish xizmati.',
-      serviceUrl: 'https://my.gov.uz/uz/service/456',
-      status_hint: 'noaniq',
-      submitChannel: 'manual_link',
-      requiredFields: ['tin', 'firstName', 'lastName', 'phone', 'region'],
-      requiredAttachments: ['passportCopy'],
-      needsOneID: true,
-      needsECP: true,
-      contextSnippets: [],
-    },
-  ];
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -355,48 +327,6 @@ export const AutoBenefitsPage: React.FC = () => {
     }
   };
 
-  const runAutoTax = async (app: any) => {
-    if (!selectedBusiness) return;
-    const payload = {
-      tax_application: app,
-      user_profile: selectedBusiness,
-      app_base_url: `${window.location.origin}/#`,
-    };
-    const res = await fetch(`${API_BASE}/api/tax/decide`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      setStatus(app.applicationId, 'Failed');
-      return;
-    }
-    const decision = await res.json();
-    if (decision.decision === 'AUTO_SUBMIT') {
-      const submitRes = await fetch(`${API_BASE}/api/mygov/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(decision.submit_request.body),
-      });
-      if (submitRes.ok) {
-        setStatus(app.applicationId, 'Submitted');
-      } else {
-        setStatus(app.applicationId, 'Failed');
-      }
-    } else if (decision.decision === 'SEND_SMS' || decision.decision === 'MANUAL_ONLY') {
-      await fetch(`${API_BASE}/api/notify/sms`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(decision.sms),
-      });
-      setStatus(app.applicationId, decision.decision === 'MANUAL_ONLY' ? 'Draft' : 'Needs_Info');
-      const entry = { id: `sms-${Date.now()}`, text: decision.sms.text, createdAt: Date.now() };
-      const updated = [entry, ...notifications];
-      setNotifications(updated);
-      localStorage.setItem('bn_auto_notifications', JSON.stringify(updated));
-    }
-  };
-
   return (
     <div className="space-y-6 pb-20 animate-fade-in">
       <header>
@@ -572,55 +502,6 @@ export const AutoBenefitsPage: React.FC = () => {
                   )}
                   {missingAttachments.length > 0 && (
                     <p className="text-xs text-amber-300">Yetishmayotgan hujjatlar: {missingAttachments.join(', ')}</p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="bg-slate-900/70 border border-white/10 rounded-2xl p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-white">Soliq arizalari (demo)</h3>
-            {taxApplications.map((app) => {
-              const missingFields = app.requiredFields.filter((field: string) => !selectedBusiness?.[field]);
-              const missingAttachments = app.requiredAttachments.filter((att: string) => !selectedBusiness?.attachments?.[att]);
-              const canAuto =
-                selectedBusiness?.consentAutoSubmit &&
-                missingFields.length === 0 &&
-                missingAttachments.length === 0 &&
-                app.submitChannel !== 'manual_link' &&
-                !app.needsECP &&
-                app.status_hint !== 'amalda_emas';
-              const badge = canAuto ? 'Auto-submit mumkin' : 'Ma’lumot yetishmaydi';
-              const status = getStatus(app.applicationId);
-              return (
-                <div key={app.applicationId} className="bg-slate-950/70 border border-white/10 rounded-lg p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-white font-medium">{app.title}</p>
-                    <span className={`text-xs px-2 py-1 rounded-full border ${
-                      canAuto ? 'bg-emerald-500/20 text-emerald-200 border-emerald-500/30' : 'bg-amber-500/20 text-amber-200 border-amber-500/30'
-                    }`}>
-                      {badge}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-400">{app.summary}</p>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="text-slate-500">Status:</span>
-                    <span className="text-ion-300">{status}</span>
-                  </div>
-                  <button
-                    onClick={() => runAutoTax(app)}
-                    className="text-xs bg-ion-600/20 hover:bg-ion-600/30 border border-ion-500/30 text-ion-200 px-3 py-2 rounded-lg"
-                  >
-                    Avto soliq arizasini ishga tushirish
-                  </button>
-                  {missingFields.length > 0 && (
-                    <p className="text-xs text-amber-300">Yetishmayotgan maydonlar: {missingFields.join(', ')}</p>
-                  )}
-                  {missingAttachments.length > 0 && (
-                    <p className="text-xs text-amber-300">Yetishmayotgan hujjatlar: {missingAttachments.join(', ')}</p>
-                  )}
-                  {app.needsECP && (
-                    <p className="text-xs text-amber-300">Eslatma: ERI talab qilinadi.</p>
                   )}
                 </div>
               );

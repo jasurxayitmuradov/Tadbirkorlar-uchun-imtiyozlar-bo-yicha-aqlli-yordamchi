@@ -214,36 +214,6 @@ class BenefitStatusItem(BaseModel):
     userId: Optional[str] = None
 
 
-class TaxApplication(BaseModel):
-    applicationId: str
-    title: str
-    summary: str
-    serviceUrl: str
-    status_hint: str
-    submitChannel: str
-    requiredFields: List[str]
-    requiredAttachments: List[str] = []
-    needsOneID: bool
-    needsECP: bool
-    contextSnippets: List[ContextSnippet] = []
-
-
-class TaxDecisionRequest(BaseModel):
-    tax_application: TaxApplication
-    user_profile: UserProfile
-    app_base_url: str
-
-
-class MyGovSubmitRequest(BaseModel):
-    userId: str
-    applicationId: str
-    serviceUrl: str
-    fields: dict
-    attachments: List[dict]
-    sourceUrls: List[str]
-    createdAt: int
-
-
 @dataclass
 class CacheState:
     items: List[NewsItem]
@@ -351,7 +321,8 @@ def _build_sms_text(benefit_title: str, missing_fields: List[str], missing_attac
     if missing_attachments:
         missing_parts.append("hujjatlar: " + ", ".join(missing_attachments))
     missing_text = "; ".join(missing_parts) if missing_parts else "ma'lumotlar yetishmaydi"
-    return f"{benefit_title}. Yetishmayotganlar — {missing_text}. Profilni to'ldiring: {app_base_url}"
+    link = f"{app_base_url}/profile?complete=1"
+    return f"Imtiyoz: {benefit_title}. Yetishmayotganlar — {missing_text}. Profilni to'ldiring: {link}"
 
 
 def _make_decision(payload: DecisionRequest) -> dict:
@@ -430,90 +401,6 @@ def _make_decision(payload: DecisionRequest) -> dict:
         },
         "sms": {"to": user.phone, "text": sms_text},
         "log": {"event": decision, "benefitId": benefit.benefitId, "userId": user.userId},
-    }
-
-
-def _make_tax_decision(payload: TaxDecisionRequest) -> dict:
-    app = payload.tax_application
-    user = payload.user_profile
-    warnings = []
-    if app.status_hint == "amalda_emas":
-        warnings.append("Xizmat amalda emas.")
-
-    missing_fields = _get_missing_fields(app.requiredFields, user)
-    missing_attachments = _get_missing_attachments(app.requiredAttachments, user)
-
-    decision = "AUTO_SUBMIT"
-    reason = "Barcha talablar bajarildi."
-
-    if app.status_hint == "amalda_emas":
-        decision = "SEND_SMS"
-        reason = "Xizmat amalda emas."
-    elif app.needsECP:
-        decision = "MANUAL_ONLY"
-        reason = "ERI talab qilinadi."
-    elif not user.consentAutoSubmit:
-        decision = "SEND_SMS"
-        reason = "Avto yuborishga rozilik berilmagan."
-    elif missing_fields or missing_attachments:
-        decision = "SEND_SMS"
-        reason = "Kerakli ma’lumotlar yoki hujjatlar yetishmaydi."
-    elif app.submitChannel == "manual_link":
-        decision = "MANUAL_ONLY"
-        reason = "Ariza faqat manual link orqali yuboriladi."
-
-    fields = {}
-    for key in app.requiredFields:
-        value = getattr(user, key, None)
-        if value is not None and value != "":
-            fields[key] = value
-
-    attachments = []
-    for att in app.requiredAttachments:
-        file_id = getattr(user.attachments, att, None)
-        if file_id:
-            attachments.append({"name": att, "fileId": file_id})
-
-    sms_text = _build_sms_text(
-        app.title,
-        missing_fields[:4],
-        missing_attachments[:4],
-        f"{payload.app_base_url}/profile?complete=1&applicationId={app.applicationId}",
-    )
-    if decision in ("MANUAL_ONLY", "SEND_SMS"):
-        sms_text = f"{sms_text} Ariza havolasi: {app.serviceUrl}"
-        if app.needsECP:
-            sms_text = f"{sms_text}. Eslatma: ERI talab qilinadi."
-        if app.status_hint == "noaniq":
-            sms_text = f"{sms_text}. Eslatma: xizmat holati noaniq."
-
-    return {
-        "decision": decision,
-        "reason": reason,
-        "warnings": warnings,
-        "missing": {"fields": missing_fields, "attachments": missing_attachments},
-        "prefilled_application": {
-            "applicationId": app.applicationId,
-            "userId": user.userId,
-            "serviceUrl": app.serviceUrl,
-            "fields": fields,
-            "attachments": attachments,
-            "sourceUrls": [snip.url for snip in app.contextSnippets if snip.url],
-        },
-        "submit_request": {
-            "endpoint": "/api/mygov/submit",
-            "method": "POST",
-            "body": {
-                "userId": user.userId,
-                "applicationId": app.applicationId,
-                "serviceUrl": app.serviceUrl,
-                "fields": fields,
-                "attachments": attachments,
-                "sourceUrls": [snip.url for snip in app.contextSnippets if snip.url],
-                "createdAt": int(time.time()),
-            },
-        },
-        "sms": {"to": user.phone, "text": sms_text},
     }
 
 
@@ -765,42 +652,3 @@ async def get_benefit_status(userId: str):
         for item in applications_store
         if item.get("userId") == userId
     ]
-
-
-@app.post("/api/tax/decide")
-async def decide_tax(payload: TaxDecisionRequest):
-    decision = _make_tax_decision(payload)
-    audit_log.append(
-        {
-            "event": "TAX_DECISION",
-            "applicationId": payload.tax_application.applicationId,
-            "userId": payload.user_profile.userId,
-            "decision": decision.get("decision"),
-            "createdAt": int(time.time()),
-        }
-    )
-    return decision
-
-
-@app.post("/api/mygov/submit")
-async def submit_mygov(payload: MyGovSubmitRequest):
-    tracking_id = f"MYGOV-{int(time.time())}"
-    applications_store.append(
-        {
-            "benefitId": payload.applicationId,
-            "userId": payload.userId,
-            "status": "Submitted",
-            "trackingId": tracking_id,
-            "updatedAt": int(time.time()),
-        }
-    )
-    audit_log.append(
-        {
-            "event": "MYGOV_SUBMITTED",
-            "applicationId": payload.applicationId,
-            "userId": payload.userId,
-            "trackingId": tracking_id,
-            "createdAt": int(time.time()),
-        }
-    )
-    return {"ok": True, "trackingId": tracking_id}
