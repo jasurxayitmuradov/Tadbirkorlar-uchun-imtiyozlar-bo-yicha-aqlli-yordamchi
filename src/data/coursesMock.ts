@@ -1,9 +1,55 @@
+export type LessonMaterial = {
+  label: string;
+  url: string;
+  isDemo?: boolean;
+};
+
+export type LessonFaq = {
+  q: string;
+  a: string;
+};
+
+export type LessonQuiz = {
+  q: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+};
+
+export type Lesson = {
+  id: string;
+  title: string;
+  summary: string;
+  durationMin: number;
+  isDemo: boolean;
+  videoProvider: 'youtube' | 'none';
+  youtubeUrl?: string;
+  notes: string[];
+  materials: LessonMaterial[];
+  faq: LessonFaq[];
+  quiz?: LessonQuiz[];
+};
+
+export type Course = {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  tags: string[];
+  isDemo: boolean;
+  isPremium?: boolean;
+  coverType: 'gradient' | 'image';
+  coverUrl?: string;
+  totalDurationMin: number;
+  lessons: Lesson[];
+};
+
 // Backend contract (kelajak uchun):
 // GET /api/courses
 // GET /api/courses/:id
 // GET /api/courses/:id/lessons/:lessonId
 // POST /api/progress { courseId, lessonId, status, time }
-export const coursesMock = [
+export const coursesMock: Course[] = [
   {
     id: 'real-001',
     title: 'Biznesni boshlash: birinchi qadamlar',

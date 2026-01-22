@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { coursesMock } from '../data/coursesMock';
+import { coursesMock, type Course } from '../data/coursesMock';
 import { CourseCard } from '../components/CourseCard';
 import { getCourseProgress, setLastOpenedCourse } from '../lib/coursesProgress';
 
@@ -23,8 +23,8 @@ export const Courses = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const filtered = useMemo(() => {
-    return coursesMock.filter((course) => {
+  const filtered: Course[] = useMemo(() => {
+    return coursesMock.filter((course: Course) => {
       if (onlyReal && course.isDemo) return false;
       if (difficulty !== 'all' && course.difficulty !== difficulty) return false;
       if (query) {
@@ -49,12 +49,12 @@ export const Courses = () => {
           type="text"
           placeholder="Kurs nomi yoki tavsif bo‘yicha qidirish..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
           className="flex-1 bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-ion-500"
         />
         <select
           value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setDifficulty(e.target.value)}
           className="bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
         >
           {difficultyOptions.map((option) => (
@@ -67,7 +67,7 @@ export const Courses = () => {
           <input
             type="checkbox"
             checked={onlyReal}
-            onChange={(e) => setOnlyReal(e.target.checked)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOnlyReal(e.target.checked)}
             className="accent-ion-500"
           />
           Faqat real kontent

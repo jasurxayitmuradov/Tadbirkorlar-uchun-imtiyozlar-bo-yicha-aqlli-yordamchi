@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Lesson } from '../data/coursesMock';
 
 const statusMap = {
   not_started: { label: 'Ko‘rilmagan', color: 'text-slate-500' },
@@ -6,7 +7,13 @@ const statusMap = {
   completed: { label: 'Tugatildi', color: 'text-emerald-300' },
 };
 
-export const LessonListItem = ({ lesson, status, onOpen }) => {
+type LessonListItemProps = {
+  lesson: Lesson;
+  status: 'not_started' | 'in_progress' | 'completed';
+  onOpen: () => void;
+};
+
+export const LessonListItem: React.FC<LessonListItemProps> = ({ lesson, status, onOpen }) => {
   const statusInfo = statusMap[status] || statusMap.not_started;
   return (
     <div className="flex items-center justify-between gap-4 bg-slate-900/60 border border-white/10 rounded-xl p-3">

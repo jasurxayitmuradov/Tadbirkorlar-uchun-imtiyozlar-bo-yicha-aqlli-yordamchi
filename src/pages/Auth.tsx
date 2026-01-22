@@ -27,11 +27,11 @@ export const Auth = () => {
     if (isAuthed()) navigate('/profile', { replace: true });
   }, [navigate]);
 
-  const onRegisterChange = (field) => (event) => {
+  const onRegisterChange = (field: keyof typeof registerForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setRegisterForm((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
-  const onLoginChange = (field) => (event) => {
+  const onLoginChange = (field: keyof typeof loginForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setLoginForm((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
@@ -55,7 +55,7 @@ export const Auth = () => {
     return '';
   };
 
-  const submitRegister = async (event) => {
+  const submitRegister = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
     const validationError = validateRegister();
@@ -76,7 +76,7 @@ export const Auth = () => {
     }, 500);
   };
 
-  const submitLogin = async (event) => {
+  const submitLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
     const validationError = validateLogin();

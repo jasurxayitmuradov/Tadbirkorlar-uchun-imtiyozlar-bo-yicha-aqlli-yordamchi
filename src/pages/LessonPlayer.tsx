@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { coursesMock } from '../data/coursesMock';
+import { coursesMock, type Course, type Lesson, type LessonQuiz } from '../data/coursesMock';
 import { VideoPlayer } from '../components/VideoPlayer';
 import {
   getLessonStatus,
@@ -26,12 +26,12 @@ export const LessonPlayer = () => {
   const [loading, setLoading] = useState(true);
   const [sessionSeconds, setSessionSeconds] = useState(0);
 
-  const course = useMemo(
-    () => coursesMock.find((item) => item.id === courseId),
+  const course: Course | undefined = useMemo(
+    () => coursesMock.find((item: Course) => item.id === courseId),
     [courseId]
   );
-  const lessonIndex = course?.lessons.findIndex((item) => item.id === lessonId) ?? -1;
-  const lesson = lessonIndex >= 0 ? course?.lessons[lessonIndex] : null;
+  const lessonIndex = course?.lessons.findIndex((item: Lesson) => item.id === lessonId) ?? -1;
+  const lesson: Lesson | null = lessonIndex >= 0 && course ? course.lessons[lessonIndex] : null;
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 450);
@@ -128,7 +128,7 @@ export const LessonPlayer = () => {
 
             {activeTab === 'quiz' && (
               <div className="space-y-4">
-                {(lesson.quiz || []).map((qItem, qIndex) => {
+                {(lesson.quiz || []).map((qItem: LessonQuiz, qIndex: number) => {
                   const selected = getQuizAnswer(course.id, lesson.id, qIndex);
                   const isCorrect = selected === qItem.correctIndex;
                   return (

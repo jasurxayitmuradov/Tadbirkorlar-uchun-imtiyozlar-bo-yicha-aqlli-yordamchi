@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { coursesMock } from '../data/coursesMock';
+import { coursesMock, type Course } from '../data/coursesMock';
 import { LessonListItem } from '../components/LessonListItem';
 import { ProgressBar } from '../components/ProgressBar';
 import {
@@ -15,8 +15,8 @@ export const CourseDetail = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const course = useMemo(
-    () => coursesMock.find((item) => item.id === courseId),
+  const course: Course | undefined = useMemo(
+    () => coursesMock.find((item: Course) => item.id === courseId),
     [courseId]
   );
 
@@ -35,7 +35,7 @@ export const CourseDetail = () => {
     course.lessons.find((lesson) => getLessonStatus(course.id, lesson.id) !== 'completed') ||
     course.lessons[0];
 
-  const goToLesson = (lessonId) => {
+  const goToLesson = (lessonId: string) => {
     setLastOpenedCourse(course.id);
     setLastLesson(course.id, lessonId);
     navigate(`/app/courses/${course.id}/lessons/${lessonId}`);

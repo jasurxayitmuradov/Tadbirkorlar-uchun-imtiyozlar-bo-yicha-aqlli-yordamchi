@@ -1,6 +1,11 @@
 import React from 'react';
+import type { Lesson } from '../data/coursesMock';
 
-export const VideoPlayer = ({ lesson }) => {
+type VideoPlayerProps = {
+  lesson: Lesson;
+};
+
+export const VideoPlayer: React.FC<VideoPlayerProps> = ({ lesson }) => {
   if (lesson.videoProvider === 'youtube' && lesson.youtubeUrl) {
     const embedUrl = lesson.youtubeUrl.replace('watch?v=', 'embed/').split('&')[0];
     return (

@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Course } from '../data/coursesMock';
 import { ProgressBar } from './ProgressBar';
 
 const difficultyMap = {
@@ -7,7 +8,13 @@ const difficultyMap = {
   advanced: "Yuqori",
 };
 
-export const CourseCard = ({ course, progress, onOpen }) => {
+type CourseCardProps = {
+  course: Course;
+  progress: { total: number; completed: number; percent: number };
+  onOpen: () => void;
+};
+
+export const CourseCard: React.FC<CourseCardProps> = ({ course, progress, onOpen }) => {
   const coverClass =
     course.coverType === 'gradient'
       ? 'bg-gradient-to-br from-ion-600/60 via-slate-900 to-emerald-500/30'
