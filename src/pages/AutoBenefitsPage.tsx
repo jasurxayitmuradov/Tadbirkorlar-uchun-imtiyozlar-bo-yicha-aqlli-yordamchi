@@ -12,22 +12,11 @@ type Submission = {
 };
 
 const STORAGE_KEY = 'bn_auto_benefit_submissions';
-const BUSINESS_KEY = 'bn_auto_businesses';
-const BUSINESS_SELECTED_KEY = 'bn_auto_business_selected';
 
 const regions = [
   'Barcha hududlar', 'Toshkent shahri', 'Toshkent viloyati', 'Andijon', 'Buxoro',
   "Farg'ona", 'Jizzax', 'Xorazm', 'Namangan', 'Navoiy',
   'Qashqadaryo', 'Qoraqalpog‘iston', 'Samarqand', 'Sirdaryo', 'Surxondaryo',
-];
-
-const businessTypes = [
-  'YTT — Savdo',
-  'YTT — Xizmat',
-  'MChJ — Ishlab chiqarish',
-  'MChJ — IT xizmatlar',
-  'Fermer xo‘jaligi',
-  'Hunarmandchilik',
 ];
 
 export const AutoBenefitsPage: React.FC = () => {
@@ -39,8 +28,6 @@ export const AutoBenefitsPage: React.FC = () => {
     message: '',
   });
   const [autoProfile, setAutoProfile] = useState<any>(null);
-  const [businesses, setBusinesses] = useState<any[]>([]);
-  const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
@@ -108,35 +95,11 @@ export const AutoBenefitsPage: React.FC = () => {
     const prof = localStorage.getItem('bn_auto_profile');
     if (prof) {
       try {
-        const parsed = JSON.parse(prof);
-        setAutoProfile(parsed);
-        const existing = localStorage.getItem(BUSINESS_KEY);
-        if (!existing) {
-          const initial = [{
-            ...parsed,
-            businessId: 'B-001',
-            businessType: businessTypes[0],
-          }];
-          setBusinesses(initial);
-          setSelectedBusinessId('B-001');
-          localStorage.setItem(BUSINESS_KEY, JSON.stringify(initial));
-          localStorage.setItem(BUSINESS_SELECTED_KEY, 'B-001');
-        }
+        setAutoProfile(JSON.parse(prof));
       } catch {
         setAutoProfile(null);
       }
     }
-    const bizRaw = localStorage.getItem(BUSINESS_KEY);
-    if (bizRaw) {
-      try {
-        const list = JSON.parse(bizRaw);
-        setBusinesses(list);
-      } catch {
-        setBusinesses([]);
-      }
-    }
-    const selected = localStorage.getItem(BUSINESS_SELECTED_KEY);
-    if (selected) setSelectedBusinessId(selected);
     const notif = localStorage.getItem('bn_auto_notifications');
     if (notif) {
       try {
@@ -149,71 +112,6 @@ export const AutoBenefitsPage: React.FC = () => {
 
   const updateField = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
-  };
-
-  const selectedBusiness = businesses.find((b) => b.businessId === selectedBusinessId) || autoProfile;
-
-  const saveBusinesses = (next: any[]) => {
-    setBusinesses(next);
-    localStorage.setItem(BUSINESS_KEY, JSON.stringify(next));
-  };
-
-  const updateBusinessField = (field: string, value: any) => {
-    const next = businesses.map((b) =>
-      b.businessId === selectedBusinessId ? { ...b, [field]: value } : b
-    );
-    saveBusinesses(next);
-    if (selectedBusinessId && selectedBusinessId === 'B-001') {
-      const updated = next.find((b) => b.businessId === selectedBusinessId);
-      if (updated) {
-        setAutoProfile(updated);
-        localStorage.setItem('bn_auto_profile', JSON.stringify(updated));
-      }
-    }
-  };
-
-  const updateBusinessAttachment = (key: string, value: boolean) => {
-    const next = businesses.map((b) =>
-      b.businessId === selectedBusinessId
-        ? {
-            ...b,
-            attachments: { ...(b.attachments || {}), [key]: value ? `${key}-file` : null },
-          }
-        : b
-    );
-    saveBusinesses(next);
-  };
-
-  const addBusiness = () => {
-    const id = `B-${Date.now()}`;
-    const base = {
-      businessId: id,
-      businessType: businessTypes[0],
-      consentAutoSubmit: false,
-      legalForm: 'YTT',
-      companyName: '',
-      firstName: '',
-      lastName: '',
-      tin: '',
-      phone: '',
-      region: 'Toshkent shahri',
-      address: '',
-      oked: [],
-      bankAccount: '',
-      email: '',
-      employeesCount: 0,
-      annualTurnover: 0,
-      attachments: {
-        registrationCert: null,
-        charter: null,
-        directorOrder: null,
-        passportCopy: null,
-      },
-    };
-    const next = [base, ...businesses];
-    saveBusinesses(next);
-    setSelectedBusinessId(id);
-    localStorage.setItem(BUSINESS_SELECTED_KEY, id);
   };
 
   const submit = (e: React.FormEvent) => {
@@ -248,12 +146,12 @@ export const AutoBenefitsPage: React.FC = () => {
 
   const getMissing = (benefit: any) => {
     const missingFields = benefit.applicationSpec.requiredFields.filter((field: string) => {
-      const value = selectedBusiness?.[field];
+      const value = autoProfile?.[field];
       if (Array.isArray(value)) return value.length === 0;
       return !value;
     });
     const missingAttachments = benefit.applicationSpec.requiredAttachments.filter(
-      (att: string) => !selectedBusiness?.attachments?.[att]
+      (att: string) => !autoProfile?.attachments?.[att]
     );
     return { missingFields, missingAttachments };
   };
@@ -284,10 +182,10 @@ export const AutoBenefitsPage: React.FC = () => {
   };
 
   const runAuto = async (benefit: any) => {
-    if (!selectedBusiness) return;
+    if (!autoProfile) return;
     const payload = {
       benefit,
-      user_profile: selectedBusiness,
+      user_profile: autoProfile,
       app_base_url: `${window.location.origin}/#`,
     };
     const res = await fetch(`${API_BASE}/api/benefits/decision`, {
@@ -337,140 +235,11 @@ export const AutoBenefitsPage: React.FC = () => {
       <div className="grid lg:grid-cols-[2fr_1fr] gap-6">
         <div className="space-y-4">
           <div className="bg-slate-900/70 border border-white/10 rounded-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-white">Tadbirkorlik profillari</h3>
-              <button
-                onClick={addBusiness}
-                className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg"
-              >
-                + Yangi biznes
-              </button>
-            </div>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs text-slate-400">Biznes turi</label>
-                <select
-                  value={selectedBusinessId || ''}
-                  onChange={(e) => {
-                    setSelectedBusinessId(e.target.value);
-                    localStorage.setItem(BUSINESS_SELECTED_KEY, e.target.value);
-                  }}
-                  className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
-                >
-                  {businesses.map((b) => (
-                    <option key={b.businessId} value={b.businessId} className="bg-slate-900">
-                      {b.businessType || b.companyName || b.businessId}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-slate-400">Faoliyat turi</label>
-                <select
-                  value={selectedBusiness?.businessType || businessTypes[0]}
-                  onChange={(e) => updateBusinessField('businessType', e.target.value)}
-                  className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
-                >
-                  {businessTypes.map((t) => (
-                    <option key={t} value={t} className="bg-slate-900">{t}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs text-slate-400">Kompaniya nomi</label>
-                <input
-                  value={selectedBusiness?.companyName || ''}
-                  onChange={(e) => updateBusinessField('companyName', e.target.value)}
-                  className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-slate-400">STIR</label>
-                <input
-                  value={selectedBusiness?.tin || ''}
-                  onChange={(e) => updateBusinessField('tin', e.target.value)}
-                  className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-slate-400">Telefon</label>
-                <input
-                  value={selectedBusiness?.phone || ''}
-                  onChange={(e) => updateBusinessField('phone', e.target.value)}
-                  className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-slate-400">Tashkiliy shakl</label>
-                <select
-                  value={selectedBusiness?.legalForm || 'YTT'}
-                  onChange={(e) => updateBusinessField('legalForm', e.target.value)}
-                  className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
-                >
-                  <option value="YTT" className="bg-slate-900">YTT</option>
-                  <option value="MChJ" className="bg-slate-900">MChJ</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-xs text-slate-400">Hudud</label>
-                <input
-                  value={selectedBusiness?.region || ''}
-                  onChange={(e) => updateBusinessField('region', e.target.value)}
-                  className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-slate-400">OKED (vergul bilan)</label>
-                <input
-                  value={(selectedBusiness?.oked || []).join(',')}
-                  onChange={(e) =>
-                    updateBusinessField(
-                      'oked',
-                      e.target.value.split(',').map(v => v.trim()).filter(Boolean)
-                    )
-                  }
-                  className="mt-1 w-full bg-slate-950/60 border border-white/10 rounded-lg px-3 py-2 text-white"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-xs text-slate-300">
-              <input
-                type="checkbox"
-                checked={!!selectedBusiness?.consentAutoSubmit}
-                onChange={(e) => updateBusinessField('consentAutoSubmit', e.target.checked)}
-                className="accent-ion-500"
-              />
-              Avto yuborishga roziman
-            </div>
-
-            <div>
-              <p className="text-xs text-slate-400 mb-2">Hujjatlar (demo)</p>
-              <div className="grid md:grid-cols-2 gap-2 text-sm text-slate-300">
-                {['registrationCert','charter','directorOrder','passportCopy'].map((key) => (
-                  <label key={key} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={!!selectedBusiness?.attachments?.[key]}
-                      onChange={(e) => updateBusinessAttachment(key, e.target.checked)}
-                      className="accent-ion-500"
-                    />
-                    {key}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-slate-900/70 border border-white/10 rounded-2xl p-6 space-y-4">
             <h3 className="text-lg font-semibold text-white">Yangi imtiyozlar</h3>
             {benefits.map((benefit) => {
               const { missingFields, missingAttachments } = getMissing(benefit);
               const canAuto =
-                selectedBusiness?.consentAutoSubmit &&
+                autoProfile?.consentAutoSubmit &&
                 missingFields.length === 0 &&
                 missingAttachments.length === 0 &&
                 benefit.applicationSpec.submitChannel !== 'manual_link';
