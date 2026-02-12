@@ -1,9 +1,6 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getUser, logout, setPlan } from '../lib/auth';
-import { coursesMock } from '../data/coursesMock';
-import { getLastDaysUsage, getQuizAnswer } from '../lib/coursesProgress';
-import { ProgressBar } from '../components/ProgressBar';
 
 const AvatarFallback = () => (
   <svg viewBox="0 0 120 120" className="w-24 h-24 text-ion-400">
@@ -23,36 +20,6 @@ export const Profile = () => {
   const navigate = useNavigate();
   const user = getUser();
   const [plan, setPlanState] = React.useState(user?.plan || 'freemium');
-
-  const stats = useMemo(() => {
-    const usage = getLastDaysUsage(7);
-    const todaySeconds = usage[usage.length - 1]?.seconds || 0;
-    const activeDays = usage.filter((d) => d.seconds >= 600).length;
-    const attendanceScore = Math.round((activeDays / 7) * 100);
-
-    let totalQuestions = 0;
-    let correctAnswers = 0;
-    coursesMock.forEach((course) => {
-      course.lessons.forEach((lesson) => {
-        (lesson.quiz || []).forEach((q, idx) => {
-          totalQuestions += 1;
-          const answer = getQuizAnswer(course.id, lesson.id, idx);
-          if (answer === q.correctIndex) correctAnswers += 1;
-        });
-      });
-    });
-
-    const masteryScore = totalQuestions === 0 ? 0 : Math.round((correctAnswers / totalQuestions) * 100);
-    const overallScore = Math.round((attendanceScore * 0.4) + (masteryScore * 0.6));
-
-    return {
-      todayMinutes: Math.floor(todaySeconds / 60),
-      attendanceScore,
-      masteryScore,
-      overallScore,
-      activeDays,
-    };
-  }, []);
 
   const handleLogout = () => {
     logout();
@@ -124,36 +91,20 @@ export const Profile = () => {
 
         <div className="bg-slate-900/70 border border-white/10 rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white">Reyting va faollik</h3>
-            <span className="text-sm text-slate-400">Oxirgi 7 kun</span>
+            <h3 className="text-lg font-semibold text-white">Profil holati</h3>
+            <span className="text-sm text-slate-400">Joriy sessiya</span>
           </div>
-
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-slate-950/70 border border-white/10 rounded-xl p-4">
-              <p className="text-xs text-slate-500">Bugungi ko‘rish vaqti</p>
-              <p className="text-2xl font-semibold text-white">{stats.todayMinutes} daqiqa</p>
-              <p className="text-xs text-slate-500 mt-1">Faol kunlar: {stats.activeDays}/7</p>
+              <p className="text-xs text-slate-500">Hisob turi</p>
+              <p className="text-xl font-semibold text-white">
+                {plan === 'premium' ? 'Premium' : 'Freemium'}
+              </p>
             </div>
-            <div className="bg-slate-950/70 border border-white/10 rounded-xl p-4 space-y-2">
-              <p className="text-xs text-slate-500">Davomat reytingi</p>
-              <p className="text-xl font-semibold text-white">{stats.attendanceScore}%</p>
-              <ProgressBar value={stats.attendanceScore} />
-              <p className="text-xs text-slate-500">Kuniga 10+ daqiqa — faol kun</p>
+            <div className="bg-slate-950/70 border border-white/10 rounded-xl p-4">
+              <p className="text-xs text-slate-500">Login email</p>
+              <p className="text-xl font-semibold text-white">{user.email}</p>
             </div>
-            <div className="bg-slate-950/70 border border-white/10 rounded-xl p-4 space-y-2">
-              <p className="text-xs text-slate-500">O‘zlashtirish reytingi</p>
-              <p className="text-xl font-semibold text-white">{stats.masteryScore}%</p>
-              <ProgressBar value={stats.masteryScore} />
-              <p className="text-xs text-slate-500">Quiz to‘g‘ri javoblar ulushi</p>
-            </div>
-          </div>
-
-          <div className="bg-ion-600/10 border border-ion-500/20 rounded-xl p-4">
-            <p className="text-xs text-slate-400">Umumiy reyting</p>
-            <p className="text-2xl font-semibold text-white">{stats.overallScore}%</p>
-            <p className="text-xs text-slate-500 mt-1">
-              Davomat (40%) + O‘zlashtirish (60%) asosida
-            </p>
           </div>
         </div>
       </div>

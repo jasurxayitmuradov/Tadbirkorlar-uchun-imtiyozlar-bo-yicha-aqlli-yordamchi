@@ -1,7 +1,0 @@
-[
-  { "id": "mygov", "name": "My.Gov.Uz", "url": "https://my.gov.uz", "enabled": true },
-  { "id": "soliq", "name": "Soliq.uz Academy", "url": "https://soliq.uz", "enabled": true },
-  { "id": "epau", "name": "Export Promotion Agency", "url": "https://epau.uz", "enabled": true },
-  { "id": "itpark", "name": "IT Park", "url": "https://it-park.uz", "enabled": true },
-  { "id": "yoshlar", "name": "Yoshlar.uz", "url": "https://yoshlar.gov.uz", "enabled": true }
-]

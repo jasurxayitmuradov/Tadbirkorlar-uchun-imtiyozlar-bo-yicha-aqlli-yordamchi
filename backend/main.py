@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import List, Optional
+from typing import Dict, List, Optional
 import html
 import re
 import time
@@ -126,6 +126,74 @@ class ContextPayload(BaseModel):
     items: List[ContextItem]
 
 
+class BusinessProfile(BaseModel):
+    user_name: str = ""
+    region: str = ""
+    business_name: str = ""
+    tin: str = ""
+    legal_form: str = ""
+    activity_type: str = ""
+    director_name: str = ""
+    phone: str = ""
+    email: str = ""
+    address: str = ""
+    employee_count: Optional[int] = None
+
+
+class Opportunity(BaseModel):
+    id: str
+    title: str
+    platform: str
+    published_at: str
+    deadline: str
+    target_regions: List[str]
+    required_fields: List[str]
+    required_activity_keywords: List[str]
+    allowed_legal_forms: List[str]
+
+
+class OpportunityStatus(BaseModel):
+    opportunity: Opportunity
+    eligible: bool
+    missing_fields: List[str]
+    reason: str
+
+
+class AutoApplicationScanResponse(BaseModel):
+    generated_at: str
+    total: int
+    items: List[OpportunityStatus]
+
+
+class AutoApplicationAnalyzeRequest(BaseModel):
+    profile: BusinessProfile
+    only_new: bool = True
+
+
+class AutoApplicationDraft(BaseModel):
+    application_id: str
+    opportunity_id: str
+    title: str
+    platform: str
+    status: str
+    submitted_at: str
+    payload: Dict[str, str]
+
+
+class SmsEvent(BaseModel):
+    to_phone: str
+    message: str
+    related_opportunity_id: str
+    created_at: str
+
+
+class AutoApplicationAnalyzeResponse(BaseModel):
+    generated_at: str
+    auto_submitted: List[AutoApplicationDraft]
+    pending_user_input: List[OpportunityStatus]
+    sms_queue: List[SmsEvent]
+
+
 @dataclass
 class CacheState:
     items: List[NewsItem]
@@ -133,6 +201,43 @@ class CacheState:
 
 
 cache_state: Optional[CacheState] = None
+
+
+AUTO_APPLICATION_FEED: List[Opportunity] = [
+    Opportunity(
+        id="app-2026-001",
+        title="Ayollar tadbirkorligi uchun subsidiya",
+        platform="my.gov.uz",
+        published_at="2026-02-11T09:00:00Z",
+        deadline="2026-03-15",
+        target_regions=["all"],
+        required_fields=["business_name", "tin", "legal_form", "director_name", "phone", "activity_type"],
+        required_activity_keywords=["ishlab chiqarish", "xizmat", "savdo"],
+        allowed_legal_forms=["YTT", "MCHJ"],
+    ),
+    Opportunity(
+        id="app-2026-002",
+        title="Eksportyorlar uchun aylanma mablag' krediti",
+        platform="lex.uz",
+        published_at="2026-02-12T07:30:00Z",
+        deadline="2026-02-28",
+        target_regions=["all"],
+        required_fields=["business_name", "tin", "legal_form", "phone", "email", "address", "activity_type"],
+        required_activity_keywords=["eksport", "logistika", "ishlab chiqarish"],
+        allowed_legal_forms=["MCHJ"],
+    ),
+    Opportunity(
+        id="app-2026-003",
+        title="Yangi YTT uchun soliq imtiyozi arizasi",
+        platform="soliq.uz",
+        published_at="2026-02-10T13:00:00Z",
+        deadline="2026-04-01",
+        target_regions=["all"],
+        required_fields=["business_name", "tin", "legal_form", "phone"],
+        required_activity_keywords=[],
+        allowed_legal_forms=["YTT"],
+    ),
+]
 
 
 def now_iso() -> str:
@@ -220,6 +325,66 @@ def _extract_text_from_pdf_bytes(data: bytes) -> str:
         tmp.write(data)
         tmp.flush()
         return extract_text(tmp.name) or ""
+
+
+def _is_activity_match(activity: str, keywords: List[str]) -> bool:
+    if not keywords:
+        return True
+    haystack = (activity or "").lower()
+    return any(keyword.lower() in haystack for keyword in keywords)
+
+
+def _is_legal_form_allowed(legal_form: str, allowed_legal_forms: List[str]) -> bool:
+    if not allowed_legal_forms:
+        return True
+    return (legal_form or "").upper() in [item.upper() for item in allowed_legal_forms]
+
+
+def _missing_fields(profile: BusinessProfile, required_fields: List[str]) -> List[str]:
+    missing: List[str] = []
+    payload = profile.model_dump()
+    for field in required_fields:
+        value = payload.get(field)
+        if value is None:
+            missing.append(field)
+            continue
+        if isinstance(value, str) and not value.strip():
+            missing.append(field)
+    return missing
+
+
+def _status_for_opportunity(profile: BusinessProfile, opp: Opportunity) -> OpportunityStatus:
+    missing = _missing_fields(profile, opp.required_fields)
+    if missing:
+        return OpportunityStatus(
+            opportunity=opp,
+            eligible=False,
+            missing_fields=missing,
+            reason="required_fields_missing",
+        )
+
+    if not _is_legal_form_allowed(profile.legal_form, opp.allowed_legal_forms):
+        return OpportunityStatus(
+            opportunity=opp,
+            eligible=False,
+            missing_fields=[],
+            reason="legal_form_not_supported",
+        )
+
+    if not _is_activity_match(profile.activity_type, opp.required_activity_keywords):
+        return OpportunityStatus(
+            opportunity=opp,
+            eligible=False,
+            missing_fields=[],
+            reason="activity_not_matched",
+        )
+
+    return OpportunityStatus(
+        opportunity=opp,
+        eligible=True,
+        missing_fields=[],
+        reason="eligible",
+    )
 
 
 async def fetch_rss() -> List[NewsItem]:
@@ -362,3 +527,99 @@ async def get_lex_context(
     )
 
     return ContextPayload(items=[item])
+
+
+@app.get("/api/auto-applications/new", response_model=AutoApplicationScanResponse)
+async def get_new_auto_applications(
+    user_name: str = Query("", max_length=120),
+    region: str = Query("all", max_length=120),
+    business_name: str = Query("", max_length=200),
+    tin: str = Query("", max_length=50),
+    legal_form: str = Query("", max_length=40),
+    activity_type: str = Query("", max_length=200),
+    director_name: str = Query("", max_length=120),
+    phone: str = Query("", max_length=40),
+    email: str = Query("", max_length=150),
+    address: str = Query("", max_length=250),
+    employee_count: Optional[int] = Query(None, ge=0),
+) -> AutoApplicationScanResponse:
+    profile = BusinessProfile(
+        user_name=user_name,
+        region=region,
+        business_name=business_name,
+        tin=tin,
+        legal_form=legal_form,
+        activity_type=activity_type,
+        director_name=director_name,
+        phone=phone,
+        email=email,
+        address=address,
+        employee_count=employee_count,
+    )
+
+    items = [_status_for_opportunity(profile, opp) for opp in AUTO_APPLICATION_FEED]
+    return AutoApplicationScanResponse(
+        generated_at=now_iso(),
+        total=len(items),
+        items=items,
+    )
+
+
+@app.post("/api/auto-applications/analyze", response_model=AutoApplicationAnalyzeResponse)
+async def analyze_and_submit_auto_applications(
+    request: AutoApplicationAnalyzeRequest,
+) -> AutoApplicationAnalyzeResponse:
+    statuses = [_status_for_opportunity(request.profile, opp) for opp in AUTO_APPLICATION_FEED]
+
+    auto_submitted: List[AutoApplicationDraft] = []
+    pending_user_input: List[OpportunityStatus] = []
+    sms_queue: List[SmsEvent] = []
+
+    for status in statuses:
+        opp = status.opportunity
+        if status.eligible:
+            payload = {
+                "business_name": request.profile.business_name,
+                "tin": request.profile.tin,
+                "legal_form": request.profile.legal_form,
+                "activity_type": request.profile.activity_type,
+                "director_name": request.profile.director_name,
+                "phone": request.profile.phone,
+                "email": request.profile.email,
+                "address": request.profile.address,
+                "submitted_by": request.profile.user_name,
+            }
+            auto_submitted.append(
+                AutoApplicationDraft(
+                    application_id=f"draft-{opp.id}-{int(time.time())}",
+                    opportunity_id=opp.id,
+                    title=opp.title,
+                    platform=opp.platform,
+                    status="submitted",
+                    submitted_at=now_iso(),
+                    payload=payload,
+                )
+            )
+            continue
+
+        pending_user_input.append(status)
+        missing_txt = ", ".join(status.missing_fields) if status.missing_fields else status.reason
+        sms_text = (
+            f"Auto ariza uchun qo'shimcha ma'lumot kerak: {opp.title}. "
+            f"Yetishmayotgan: {missing_txt}."
+        )
+        sms_queue.append(
+            SmsEvent(
+                to_phone=request.profile.phone or "unknown",
+                message=sms_text,
+                related_opportunity_id=opp.id,
+                created_at=now_iso(),
+            )
+        )
+
+    return AutoApplicationAnalyzeResponse(
+        generated_at=now_iso(),
+        auto_submitted=auto_submitted,
+        pending_user_input=pending_user_input,
+        sms_queue=sms_queue,
+    )
