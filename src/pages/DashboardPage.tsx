@@ -4,14 +4,12 @@ import { NewsItem, UserProfile } from '../types';
 import { Link } from 'react-router-dom';
 import { Card } from '../components/Card';
 import { getNews } from '../services/newsService';
-import { getCourses } from '../services/coursesService';
-import { MessageSquareText, Zap, ChevronRight, GraduationCap } from 'lucide-react';
+import { MessageSquareText, Zap, ChevronRight, FilePenLine } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const profile: UserProfile = JSON.parse(localStorage.getItem('user_profile') || '{}');
   const [recentNews, setRecentNews] = useState<NewsItem[]>([]);
-  const recommendedCourses = getCourses().slice(0, 3); // Mock recommendation
 
   useEffect(() => {
     let isMounted = true;
@@ -53,18 +51,18 @@ export const DashboardPage: React.FC = () => {
             </Card>
         </Link>
 
-        <Link to="/app/courses">
-            <Card className="h-full bg-gradient-to-br from-slate-900 to-slate-900 border-l-4 border-l-purple-500">
+        <Link to="/app/auto-application">
+            <Card className="h-full bg-gradient-to-br from-slate-900 to-slate-900 border-l-4 border-l-amber-500">
             <div className="flex justify-between items-start">
                 <div>
-                <p className="text-slate-400 text-sm font-medium mb-1">{t('dashboard.new.courses')}</p>
-                <h3 className="text-3xl font-bold text-white">12</h3>
+                <p className="text-slate-400 text-sm font-medium mb-1">Avto ariza monitoring</p>
+                <h3 className="text-3xl font-bold text-white">24/7</h3>
                 </div>
-                <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
-                <GraduationCap size={24} />
+                <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400">
+                <FilePenLine size={24} />
                 </div>
             </div>
-            <div className="mt-4 text-xs text-slate-500">{t('dashboard.added.month')}</div>
+            <div className="mt-4 text-xs text-slate-500">Yangi arizalarni avtomatik tekshiradi</div>
             </Card>
         </Link>
 
@@ -82,9 +80,9 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8">
         {/* Latest News */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-white">{t('dashboard.latest.news')}</h2>
             <Link to="/app/news" className="text-sm text-ion-400 hover:text-ion-300 flex items-center">{t('dashboard.view.all')} <ChevronRight size={16}/></Link>
@@ -105,25 +103,6 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Recommended Courses */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-white">{t('dashboard.recommended')}</h2>
-            <Link to="/app/courses" className="text-sm text-purple-400 hover:text-purple-300 flex items-center">{t('dashboard.browse')} <ChevronRight size={16}/></Link>
-          </div>
-          <div className="space-y-4">
-            {recommendedCourses.map(course => (
-              <Card key={course.id} className="p-4 border-l-2 border-l-purple-500">
-                <h4 className="font-bold text-white text-sm line-clamp-1">{course.title}</h4>
-                <p className="text-xs text-slate-400 mt-1 mb-2">{course.provider}</p>
-                <div className="flex items-center gap-2">
-                    <span className="text-[10px] uppercase bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">{course.level}</span>
-                    <span className="text-[10px] uppercase bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">{course.format}</span>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

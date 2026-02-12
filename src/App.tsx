@@ -9,13 +9,11 @@ import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import { isAuthed } from './lib/auth.ts';
 import { DashboardPage } from './pages/DashboardPage';
 import { ChatPage } from './pages/ChatPage';
-import { Courses } from './pages/Courses.tsx';
-import { CourseDetail } from './pages/CourseDetail.tsx';
-import { LessonPlayer } from './pages/LessonPlayer.tsx';
 import { NewsPage } from './pages/NewsPage';
 import { BenefitsPage } from './pages/BenefitsPage';
 import { SourcesPage } from './pages/SourcesPage';
 import { PricingPage } from './pages/PricingPage';
+import { AutoApplicationPage } from './pages/AutoApplicationPage';
 import { Sidebar } from './components/Sidebar';
 import { Menu, Monitor, Sun, Moon } from 'lucide-react';
 import { applyTheme, getStoredTheme, initTheme, setStoredTheme } from './services/theme';
@@ -35,7 +33,7 @@ const AppShell = () => {
     '/app/chat': 'AI Assistant',
     '/app/news': 'Official News',
     '/app/benefits': 'Benefits Catalog',
-    '/app/courses': 'Courses',
+    '/app/auto-application': 'Auto Application',
     '/app/sources': 'Data Sources',
     '/app/settings': 'Settings'
   };
@@ -154,16 +152,11 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/auth" element={<Auth />} />
-        <Route path="/courses" element={<Courses />} />
-        <Route path="/courses/:courseId" element={<CourseDetail />} />
-        <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonPlayer />} />
         <Route path="/app" element={<AppShell />}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="chat" element={<ChatPage />} />
-          <Route path="courses" element={<Courses />} />
-          <Route path="courses/:courseId" element={<CourseDetail />} />
-          <Route path="courses/:courseId/lessons/:lessonId" element={<LessonPlayer />} />
           <Route path="benefits" element={<BenefitsPage />} />
+          <Route path="auto-application" element={<AutoApplicationPage />} />
           <Route path="news" element={<NewsPage />} />
           <Route path="sources" element={<SourcesPage />} />
           <Route path="pricing" element={<PricingPage />} />
