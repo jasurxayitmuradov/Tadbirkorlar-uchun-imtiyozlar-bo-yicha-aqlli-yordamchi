@@ -32,7 +32,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open: http://localhost:5174
+
 
 ## Environment Variables
 Create `.env.local`:
