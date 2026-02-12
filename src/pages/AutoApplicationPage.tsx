@@ -70,47 +70,67 @@ export const AutoApplicationPage = () => {
 
   return (
     <div className="space-y-6 pb-20 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-white">Avto ariza xizmati</h1>
+      <div className="status-marquee rounded-xl border border-red-300/30" role="status" aria-live="polite">
+        <div className="status-marquee__track">
+          <span>
+            Davlat tomonidan ruxsat berilgandan so&apos;ng Avto ariza xizmati to&apos;liq ishlaydi.
+          </span>
+          <span aria-hidden="true">
+            Davlat tomonidan ruxsat berilgandan so&apos;ng Avto ariza xizmati to&apos;liq ishlaydi.
+          </span>
+        </div>
+      </div>
+      <div className="glass-panel ai-panel scanline rounded-2xl p-5">
+        <h1 className="text-2xl ai-title">Avto ariza xizmati</h1>
         <p className="text-slate-400 mt-1">
           Yangi arizalarni davlat platformalaridan tekshiradi, profilingiz bilan to&apos;ldiradi va
           ma&apos;lumot yetishmasa SMS navbatga qo&apos;yadi.
         </p>
+        <div className="mt-3">
+          <span className="ai-chip"><span className="ai-dot" /> AI Auto Flow Active</span>
+        </div>
       </div>
 
-      <section className="bg-slate-900/70 border border-white/10 rounded-2xl p-5 space-y-4">
+      <section className="glass-panel ai-panel rounded-2xl p-5 space-y-4">
         <h2 className="text-lg text-white font-semibold">Biznes profilingiz</h2>
         <div className="grid md:grid-cols-2 gap-3">
-          <input className="bg-slate-950/70 border border-white/10 rounded-lg p-2 text-slate-100" placeholder="Foydalanuvchi ismi" value={profile.name || ''} onChange={(e) => update('name', e.target.value)} />
-          <input className="bg-slate-950/70 border border-white/10 rounded-lg p-2 text-slate-100" placeholder="Hudud" value={profile.region || ''} onChange={(e) => update('region', e.target.value)} />
-          <input className="bg-slate-950/70 border border-white/10 rounded-lg p-2 text-slate-100" placeholder="Biznes nomi" value={profile.businessName || ''} onChange={(e) => update('businessName', e.target.value)} />
-          <input className="bg-slate-950/70 border border-white/10 rounded-lg p-2 text-slate-100" placeholder="STIR (TIN)" value={profile.tin || ''} onChange={(e) => update('tin', e.target.value)} />
-          <input className="bg-slate-950/70 border border-white/10 rounded-lg p-2 text-slate-100" placeholder="Tashkiliy shakl (YTT/MCHJ)" value={profile.legalForm || ''} onChange={(e) => update('legalForm', e.target.value)} />
-          <input className="bg-slate-950/70 border border-white/10 rounded-lg p-2 text-slate-100" placeholder="Faoliyat turi" value={profile.activityType || ''} onChange={(e) => update('activityType', e.target.value)} />
-          <input className="bg-slate-950/70 border border-white/10 rounded-lg p-2 text-slate-100" placeholder="Direktor F.I.Sh" value={profile.directorName || ''} onChange={(e) => update('directorName', e.target.value)} />
-          <input className="bg-slate-950/70 border border-white/10 rounded-lg p-2 text-slate-100" placeholder="Telefon (+998...)" value={profile.phone || ''} onChange={(e) => update('phone', e.target.value)} />
-          <input className="bg-slate-950/70 border border-white/10 rounded-lg p-2 text-slate-100" placeholder="Email" value={profile.email || ''} onChange={(e) => update('email', e.target.value)} />
-          <input className="bg-slate-950/70 border border-white/10 rounded-lg p-2 text-slate-100" placeholder="Manzil" value={profile.address || ''} onChange={(e) => update('address', e.target.value)} />
+          <input className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 text-slate-100 placeholder:text-slate-400" placeholder="Foydalanuvchi ismi" value={profile.name || ''} onChange={(e) => update('name', e.target.value)} />
+          <input className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 text-slate-100 placeholder:text-slate-400" placeholder="Hudud" value={profile.region || ''} onChange={(e) => update('region', e.target.value)} />
+          <input className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 text-slate-100 placeholder:text-slate-400" placeholder="Biznes nomi" value={profile.businessName || ''} onChange={(e) => update('businessName', e.target.value)} />
+          <input className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 text-slate-100 placeholder:text-slate-400" placeholder="STIR (TIN)" value={profile.tin || ''} onChange={(e) => update('tin', e.target.value)} />
+          <input className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 text-slate-100 placeholder:text-slate-400" placeholder="Tashkiliy shakl (YTT/MCHJ)" value={profile.legalForm || ''} onChange={(e) => update('legalForm', e.target.value)} />
+          <input className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 text-slate-100 placeholder:text-slate-400" placeholder="Faoliyat turi" value={profile.activityType || ''} onChange={(e) => update('activityType', e.target.value)} />
+          <input className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 text-slate-100 placeholder:text-slate-400" placeholder="Direktor F.I.Sh" value={profile.directorName || ''} onChange={(e) => update('directorName', e.target.value)} />
+          <input className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 text-slate-100 placeholder:text-slate-400" placeholder="Telefon (+998...)" value={profile.phone || ''} onChange={(e) => update('phone', e.target.value)} />
+          <input className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 text-slate-100 placeholder:text-slate-400" placeholder="Email" value={profile.email || ''} onChange={(e) => update('email', e.target.value)} />
+          <input className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 text-slate-100 placeholder:text-slate-400" placeholder="Manzil" value={profile.address || ''} onChange={(e) => update('address', e.target.value)} />
         </div>
         <button
           onClick={runFlow}
           disabled={loading}
-          className="bg-ion-600 hover:bg-ion-500 disabled:opacity-60 text-white py-2 px-4 rounded-lg"
+          className="ai-button disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? "Tekshirilmoqda..." : "Yangi arizalarni tekshirish va avtomatik yuborish"}
         </button>
         {error && <p className="text-red-400 text-sm">{error}</p>}
       </section>
 
+      {loading && (
+        <section className="grid md:grid-cols-2 gap-4">
+          <div className="skeleton-card h-40 rounded-2xl" />
+          <div className="skeleton-card h-40 rounded-2xl" />
+        </section>
+      )}
+
       {scanResult && (
-        <section className="bg-slate-900/70 border border-white/10 rounded-2xl p-5 space-y-3">
+        <section className="glass-panel ai-panel scanline rounded-2xl p-5 space-y-3">
           <h2 className="text-lg text-white font-semibold">Yangi arizalar tahlili</h2>
           <p className="text-sm text-slate-400">
             Jami: {scanResult.total} | Avto yuborishga tayyor: {eligibleCount}
           </p>
           <div className="space-y-2">
             {scanResult.items.map((item) => (
-              <div key={item.opportunity.id} className="rounded-lg border border-white/10 bg-slate-950/60 p-3">
+              <div key={item.opportunity.id} className="rounded-lg border border-white/20 bg-white/5 backdrop-blur-sm p-3 ai-panel">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-slate-200">{item.opportunity.title}</p>
                   <span className={`text-xs px-2 py-1 rounded ${item.eligible ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
@@ -131,9 +151,18 @@ export const AutoApplicationPage = () => {
         </section>
       )}
 
+      {!loading && !scanResult && (
+        <section className="glass-panel ai-panel rounded-2xl p-6 text-center space-y-3">
+          <h3 className="text-lg ai-title">AI monitoring hali ishga tushmagan</h3>
+          <p className="text-sm text-slate-400">
+            Profil ma&apos;lumotlarini to&apos;ldirib, tekshiruvni boshlang. Tizim mos arizalarni avtomatik tahlil qiladi.
+          </p>
+        </section>
+      )}
+
       {analyzeResult && (
         <section className="grid lg:grid-cols-2 gap-4">
-          <div className="bg-slate-900/70 border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="glass-panel ai-panel rounded-2xl p-5 space-y-3">
             <h2 className="text-lg text-white font-semibold">Avtomatik yuborilgan arizalar</h2>
             {analyzeResult.auto_submitted.length === 0 && (
               <p className="text-sm text-slate-400">Hozircha avtomatik yuborilgan ariza yo&apos;q.</p>
@@ -148,7 +177,7 @@ export const AutoApplicationPage = () => {
             ))}
           </div>
 
-          <div className="bg-slate-900/70 border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="glass-panel ai-panel rounded-2xl p-5 space-y-3">
             <h2 className="text-lg text-white font-semibold">SMS navbati</h2>
             {analyzeResult.sms_queue.length === 0 && (
               <p className="text-sm text-slate-400">Qo&apos;shimcha ma&apos;lumot so&apos;ralmadi.</p>
@@ -162,6 +191,14 @@ export const AutoApplicationPage = () => {
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {!loading && !analyzeResult && (
+        <section className="glass-panel ai-panel rounded-2xl p-6 text-center">
+          <p className="text-sm text-slate-400">
+            Tahlil natijalari bu yerda ko&apos;rinadi: avtomatik yuborilgan arizalar va SMS navbat.
+          </p>
         </section>
       )}
     </div>

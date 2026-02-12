@@ -5,7 +5,7 @@ import { getNews, filterNews, getContextForNews } from '../services/newsService'
 import { NewsItem } from '../types';
 import { Card } from '../components/Card';
 import { Modal } from '../components/Modal';
-import { Search, Calendar, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Search, Calendar, ExternalLink, ShieldCheck, Sparkles, RotateCcw } from 'lucide-react';
 
 export const NewsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -16,11 +16,15 @@ export const NewsPage: React.FC = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
   const [contextLoadingId, setContextLoadingId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
     getNews().then((items) => {
-      if (isMounted) setAllNews(items);
+      if (isMounted) {
+        setAllNews(items);
+        setLoading(false);
+      }
     });
     return () => {
       isMounted = false;
@@ -52,8 +56,8 @@ export const NewsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-20 animate-fade-in">
-      <header>
-        <h1 className="text-3xl font-bold text-white mb-2">{t('news.title')}</h1>
+      <header className="glass-panel ai-panel scanline rounded-2xl p-5">
+        <h1 className="text-3xl ai-title mb-2">{t('news.title')}</h1>
         <p className="text-slate-400 flex items-center gap-2">
           <ShieldCheck size={16} className="text-green-400" />
           {t('news.subtitle')}
@@ -61,7 +65,7 @@ export const NewsPage: React.FC = () => {
       </header>
 
       {/* Filter Bar */}
-      <div className="glass-panel p-4 rounded-xl flex flex-col md:flex-row gap-4">
+      <div className="glass-panel ai-panel p-4 rounded-xl flex flex-col md:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
           <input
@@ -69,7 +73,7 @@ export const NewsPage: React.FC = () => {
             placeholder={t('news.search.placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-slate-950/50 border border-white/10 rounded-lg pl-10 pr-4 py-2 text-white focus:border-ion-500 outline-none"
+            className="w-full bg-slate-950/50 border border-white/15 rounded-lg pl-10 pr-4 py-2 text-white focus:border-ion-400 outline-none"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-thin">
@@ -77,8 +81,8 @@ export const NewsPage: React.FC = () => {
             onClick={() => setSelectedTag(null)}
             className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap border transition-all ${
               !selectedTag 
-                ? 'bg-ion-600 border-ion-500 text-white' 
-                : 'bg-slate-900/50 border-white/10 text-slate-400 hover:text-white'
+                ? 'bg-ion-600 border-ion-500 text-white shadow-[0_0_18px_rgba(56,189,248,0.35)]'
+                : 'bg-slate-900/50 border-white/10 text-slate-300 hover:text-white hover:border-ion-500/40'
             }`}
           >
             {t('news.all.updates')}
@@ -89,8 +93,8 @@ export const NewsPage: React.FC = () => {
               onClick={() => setSelectedTag(tag)}
               className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap border transition-all ${
                 selectedTag === tag
-                  ? 'bg-ion-600 border-ion-500 text-white' 
-                  : 'bg-slate-900/50 border-white/10 text-slate-400 hover:text-white'
+                  ? 'bg-ion-600 border-ion-500 text-white shadow-[0_0_18px_rgba(56,189,248,0.35)]'
+                  : 'bg-slate-900/50 border-white/10 text-slate-300 hover:text-white hover:border-ion-500/40'
               }`}
             >
               #{tag}
@@ -101,11 +105,19 @@ export const NewsPage: React.FC = () => {
 
       {/* News Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {loading && (
+          <>
+            <div className="skeleton-card h-64 rounded-2xl" />
+            <div className="skeleton-card h-64 rounded-2xl" />
+            <div className="skeleton-card h-64 rounded-2xl" />
+            <div className="skeleton-card h-64 rounded-2xl" />
+          </>
+        )}
         {news.map(item => (
           <Card 
             key={item.id} 
             onClick={() => setSelectedNews(item)}
-            className="flex flex-col h-full hover:border-ion-500/50"
+            className="flex flex-col h-full hover:border-ion-500/50 scanline"
           >
             <div className="flex justify-between items-start mb-3">
               <span className="text-xs font-bold text-ion-400 bg-ion-500/10 px-2 py-1 rounded border border-ion-500/20">
@@ -136,7 +148,7 @@ export const NewsPage: React.FC = () => {
                 handleStartChat(item);
               }}
               disabled={contextLoadingId === item.id}
-              className="w-full text-xs bg-ion-600/20 hover:bg-ion-600/30 border border-ion-500/30 text-ion-200 py-2 rounded-lg transition-colors disabled:opacity-60"
+              className="w-full text-xs ai-button-ghost py-2 disabled:opacity-60"
             >
               {contextLoadingId === item.id ? "Kontekst olinmoqda..." : "AI bilan suhbat"}
             </button>
@@ -157,9 +169,31 @@ export const NewsPage: React.FC = () => {
             </div>
           </Card>
         ))}
-        {news.length === 0 && (
-          <div className="col-span-full py-10 text-center text-slate-500">
-            {t('news.no.results')}
+        {!loading && news.length === 0 && (
+          <div className="col-span-full py-10">
+            <div className="glass-panel ai-panel rounded-2xl p-8 text-center space-y-4">
+              <div className="mx-auto w-12 h-12 rounded-full bg-ion-500/20 text-ion-300 flex items-center justify-center">
+                <Sparkles size={20} />
+              </div>
+              <p className="text-slate-300">{t('news.no.results')}</p>
+              <div className="flex items-center justify-center gap-3 flex-wrap">
+                <button
+                  onClick={() => {
+                    setQuery('');
+                    setSelectedTag(null);
+                  }}
+                  className="ai-button-ghost"
+                >
+                  <RotateCcw size={14} /> Filterni tozalash
+                </button>
+                <button
+                  onClick={() => navigate('/app/chat')}
+                  className="ai-button"
+                >
+                  <Sparkles size={14} /> AI bilan so‘rash
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -225,7 +259,7 @@ export const NewsPage: React.FC = () => {
               <button
                 onClick={() => selectedNews && handleStartChat(selectedNews)}
                 disabled={contextLoadingId === selectedNews?.id}
-                className="w-full mb-3 bg-ion-600/20 hover:bg-ion-600/30 text-ion-200 border border-ion-500/30 font-medium py-3 rounded-xl transition-colors disabled:opacity-60"
+                className="w-full mb-3 ai-button-ghost py-3 disabled:opacity-60"
               >
                 {contextLoadingId === selectedNews?.id ? "Kontekst olinmoqda..." : "AI bilan suhbat"}
               </button>
@@ -233,7 +267,7 @@ export const NewsPage: React.FC = () => {
                 href={selectedNews.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="w-full bg-ion-600 hover:bg-ion-500 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 transition-colors"
+                className="w-full ai-button py-3 rounded-xl flex items-center justify-center gap-2"
               >
                 {t('news.read.source')} <ExternalLink size={18} />
               </a>
