@@ -72,13 +72,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
-        w-64 bg-slate-950 border-r border-white/5
+        w-64 app-sidebar border-r border-white/10
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="h-full flex flex-col">
           <div className="p-6 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-ion-500 shadow-[0_0_15px_#0ea5e9] flex items-center justify-center text-white font-bold">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-emerald-400 shadow-[0_0_18px_rgba(34,211,238,0.6)] flex items-center justify-center text-slate-900 font-extrabold">
               B
             </div>
             <div className="flex flex-col flex-1">
@@ -92,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-slate-900/50 border border-white/10 hover:bg-slate-900 hover:border-ion-500/30 transition-all text-left"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-ion-500/30 transition-all text-left"
               >
                 <div className="flex items-center gap-2">
                   <Languages size={18} className="text-ion-400" />
@@ -105,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               </button>
               
               {languageDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-white/10 rounded-xl overflow-hidden shadow-xl z-50">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-md border border-white/15 rounded-xl overflow-hidden shadow-xl z-50">
                   <button
                     onClick={() => changeLanguage('uz')}
                     className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-all ${
@@ -164,7 +164,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
                     ${active 
                       ? 'bg-ion-500/10 text-ion-400 border border-ion-500/20 shadow-[0_0_10px_rgba(14,165,233,0.1)]' 
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}
+                      : 'text-slate-400 hover:text-slate-100 hover:bg-white/10'}
                   `;
                 }}
               >
@@ -176,7 +176,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
           {/* Trusted Sources */}
           <div className="p-4 border-t border-white/5">
-            <div className="p-4 rounded-xl bg-slate-900 border border-white/5 flex items-center gap-3">
+            <div className="p-4 rounded-xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3">
               <ShieldCheck className="text-green-400" size={20} />
               <div>
                 <p className="text-xs text-slate-400">{t('sidebar.trusted.sources')}</p>

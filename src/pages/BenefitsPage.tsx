@@ -174,8 +174,8 @@ export const BenefitsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 pb-20 animate-fade-in">
-      <header>
-        <h1 className="text-3xl font-bold text-white mb-2">Imtiyozlar yo‘l xaritasi (demo)</h1>
+      <header className="glass-panel ai-panel scanline rounded-2xl p-5">
+        <h1 className="text-3xl ai-title mb-2">Imtiyozlar yo‘l xaritasi (demo)</h1>
         <p className="text-slate-400">Hackaton MVP uchun demo “roadmap” — amaliy jarayon namoyishi.</p>
       </header>
 
@@ -222,7 +222,7 @@ export const BenefitsPage: React.FC = () => {
       )}
 
       {roadmap && (
-        <div className="bg-slate-900/60 border border-white/10 rounded-xl p-4">
+        <div className="glass-panel ai-panel rounded-xl p-4">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div>
               <p className="text-sm text-slate-300">
@@ -236,13 +236,13 @@ export const BenefitsPage: React.FC = () => {
               <button
                 onClick={() => handleAiAdvice(roadmap)}
                 disabled={aiLoading}
-                className="flex items-center gap-2 text-xs bg-ion-600/20 hover:bg-ion-600/30 border border-ion-500/30 text-ion-200 px-3 py-2 rounded-lg transition-colors disabled:opacity-60"
+                className="ai-button text-xs disabled:opacity-60"
               >
                 <Sparkles size={14} /> {aiLoading ? 'AI tahlil qilmoqda...' : 'AI tavsiya'}
               </button>
               <button
                 onClick={() => handleStartChat(roadmap)}
-                className="flex items-center gap-2 text-xs bg-slate-800 hover:bg-slate-700 border border-white/10 text-slate-200 px-3 py-2 rounded-lg transition-colors"
+                className="ai-button-ghost text-xs"
               >
                 <Sparkles size={14} /> AI bilan suhbat
               </button>

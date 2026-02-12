@@ -76,7 +76,11 @@ export const ChatPage: React.FC = () => {
   ];
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
+    <div className="flex flex-col h-[calc(100vh-8rem)] glass-panel ai-panel rounded-2xl p-4 md:p-5">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h1 className="text-lg md:text-xl ai-title">AI Legal Copilot</h1>
+        <span className="ai-chip">Live analysis</span>
+      </div>
       <div className="flex-1 overflow-y-auto pr-2 space-y-6 scrollbar-thin">
         {messages.map((msg) => (
           <div
@@ -92,8 +96,8 @@ export const ChatPage: React.FC = () => {
             
             <div className={`
               max-w-[80%] p-4 rounded-2xl
-              ${msg.sender === 'user' 
-                ? 'bg-slate-800 text-white rounded-tr-sm' 
+              ${msg.sender === 'user'
+                ? 'bg-slate-800/90 border border-white/10 text-white rounded-tr-sm'
                 : 'bg-slate-900/80 border border-white/10 text-slate-200 rounded-tl-sm backdrop-blur-sm'}
             `}>
                {msg.sender === 'ai' ? (
@@ -130,9 +134,15 @@ export const ChatPage: React.FC = () => {
             <div className="w-10 h-10 rounded-full bg-ion-600 flex items-center justify-center animate-pulse">
               <Bot size={20} />
             </div>
-            <div className="bg-slate-900/50 p-4 rounded-2xl rounded-tl-sm flex items-center gap-2 text-slate-400">
-              <Loader2 size={16} className="animate-spin" />
-              <span>Checking legal database...</span>
+            <div className="bg-slate-900/50 border border-white/10 p-4 rounded-2xl rounded-tl-sm flex items-center gap-3 text-slate-300">
+              <span className="ai-waveform" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <span />
+                <span />
+              </span>
+              <span>AI hujjatlarni tahlil qilmoqda...</span>
             </div>
           </div>
         )}
@@ -146,7 +156,7 @@ export const ChatPage: React.FC = () => {
               <button
                 key={s}
                 onClick={() => setInput(s)}
-                className="text-xs bg-slate-800 hover:bg-slate-700 text-ion-400 border border-ion-500/20 px-3 py-1.5 rounded-full transition-colors"
+                className="text-xs bg-slate-800/80 hover:bg-slate-700 text-ion-300 border border-ion-500/30 px-3 py-1.5 rounded-full transition-colors"
               >
                 {s}
               </button>
@@ -161,12 +171,12 @@ export const ChatPage: React.FC = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask about official benefits..."
-            className="w-full bg-slate-900/80 border border-white/10 rounded-xl pl-4 pr-12 py-4 text-white focus:outline-none focus:border-ion-500 focus:ring-1 focus:ring-ion-500 shadow-lg"
+            className="w-full bg-slate-900/70 backdrop-blur-md border border-white/15 rounded-xl pl-4 pr-12 py-4 text-white focus:outline-none focus:border-ion-400 focus:ring-1 focus:ring-ion-400 shadow-lg"
           />
           <button
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
-            className="absolute right-2 top-2 p-2 bg-ion-600 hover:bg-ion-500 disabled:bg-slate-700 text-white rounded-lg transition-colors"
+            className="absolute right-2 top-2 p-2 ai-button disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
           </button>
